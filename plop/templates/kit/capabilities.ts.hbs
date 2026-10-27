@@ -1,0 +1,8 @@
+import { domain } from "@xndrjs/domain-zod";
+import { {{pascalName kitStem}}Shape } from "{{kitImport}}.shape";
+
+export const {{pascalName name}}Capabilities = domain.capabilities
+  .forShapeKit({{pascalName kitStem}}Shape)
+  .methods(({ patch }) => ({
+    // TODO: add capabilities
+  }));

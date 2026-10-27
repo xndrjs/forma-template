@@ -1,0 +1,8 @@
+export class {{pascalName name}}Error extends Error {
+  readonly code = "{{constantName}}" as const;
+
+  constructor(message = "{{pascalName name}}") {
+    super(message);
+    this.name = "{{pascalName name}}Error";
+  }
+}

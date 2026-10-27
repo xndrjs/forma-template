@@ -1,0 +1,12 @@
+import { domain } from "@xndrjs/domain-zod";
+import { z } from "zod";
+
+export const {{pascalName name}}Shape = domain.shape(
+  "{{pascalName name}}",
+  z.object({
+    kind: z.literal("{{pascalName name}}").default("{{pascalName name}}"),
+    // TODO: define shape fields
+  }),
+);
+
+export type {{pascalName name}} = ReturnType<(typeof {{pascalName name}}Shape)["create"]>;

@@ -1,0 +1,10 @@
+import { err } from "@xndrjs/forma";
+import { {{pascalName intent}} } from "./{{intentFile}}.intent";
+
+export const {{pascalName intent}}Provider = {{pascalName intent}}.provide.with(
+  (_ctx) =>
+    function (_input) {
+      // TODO: realize intent
+      return err({ kind: "not_implemented" as const });
+    },
+);

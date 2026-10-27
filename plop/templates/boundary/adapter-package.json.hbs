@@ -1,0 +1,20 @@
+{
+  "name": "@adapter/{{stack}}",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./models": "./models/index.ts",
+    "./intents": "./intents/index.intents.ts",
+    "./providers": "./intents/index.providers.ts",
+    "./errors": "./errors/index.ts"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@core/{{feature}}": "workspace:*",
+{{#each vendors}}
+    "@infrastructure/{{this}}": "workspace:*",
+{{/each}}
+    "@xndrjs/forma": "catalog:",
+    "zod": "catalog:"
+  }
+}

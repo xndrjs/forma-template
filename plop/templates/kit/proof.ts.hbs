@@ -1,0 +1,23 @@
+import { domain } from "@xndrjs/domain-zod";
+import { z } from "zod";
+
+export const {{pascalName name}}Proof = domain
+  .proof(
+    "{{pascalName name}}",
+    z.object({
+      // TODO: define proof baseline schema
+    }),
+  )
+  .refineType(
+    (
+      _row,
+    ): _row is typeof _row & {
+      /* TODO */
+    } => {
+      return true;
+    },
+  );
+
+export type {{pascalName name}} = ReturnType<
+  (typeof {{pascalName name}}Proof)["assert"]
+>;

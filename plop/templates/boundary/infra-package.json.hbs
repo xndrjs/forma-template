@@ -1,0 +1,16 @@
+{
+  "name": "@infrastructure/{{name}}",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./models": "./models/index.ts",
+    "./intents": "./intents/index.intents.ts",
+    "./providers": "./intents/index.providers.ts",
+    "./errors": "./errors/index.ts"
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "@xndrjs/forma": "catalog:",
+    "zod": "catalog:"
+  }
+}

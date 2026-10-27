@@ -1,0 +1,72 @@
+---
+name: forma-adapter-stacks
+description: Designs or reviews adapter packages that join one @core feature to an explicit vendor stack—naming adapter-<feature>-<vendors…>, fetch-raw vs materialize, infrastructure packaging. Use when adding AdapterBoundary, choosing mono- vs multi-vendor stacks, or placing raw fetch vs materialization—not for core kits alone or composition wiring.
+---
+
+# Adapter stacks
+
+## Role
+
+An **adapter** is the only package kind that joins a feature (`@core/<feature>`) to a vendor stack (`@infrastructure/<vendor>`…).
+
+| Kind           | Specificity                       |
+| -------------- | --------------------------------- |
+| Core           | Feature-specific, vendor-agnostic |
+| Infrastructure | Feature-agnostic, vendor-specific |
+| Adapter        | Feature + explicit vendor stack   |
+
+Architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Adapter naming_, _Infrastructure packaging_, _Fetch raw vs materialize_.
+
+## Naming
+
+- Name = **feature + vendor stack** (concatenated).
+- Mono-vendor: `adapter-pagebuilder-contentful` → `@adapter/pagebuilder-contentful`.
+- Multi-vendor materializer (no IR): `adapter-pagebuilder-contentful-mulesoft`.
+- Parallel stacks = **separate** packages (e.g. `…-datocms-workato`), never one god-package importing all vendors.
+- No intermediate representation layer: the adapter may know vendor raw shapes; the unit of substitution is the whole adapter stack package.
+
+Scaffold with `pnpm plop` → `adapter-boundary` (pick core + infra Candidates). `package.json` must list workspace deps on that core and those infrastructure packages.
+
+## Fetch raw vs materialize
+
+| Role            | Typical home                                        | Responsibility                                             |
+| --------------- | --------------------------------------------------- | ---------------------------------------------------------- |
+| **Fetch raw**   | `@infrastructure/<vendor>` intents / providers      | Vendor-native shapes; batching/caching; **no** `@core/*`   |
+| **Materialize** | `@adapter/<feature>-<vendors…>` intents / providers | Map raw → core models; realize unrealized **core** intents |
+
+The same raw fetch can feed multiple adapters projecting into different `@core/*` read models.
+
+## Infrastructure packaging
+
+- Keep clients, SDK bootstrap, raw helpers, caching in `@infrastructure/<vendor>`.
+- Shared vendor packages hold **reusable low-level building blocks only**—not feature orchestration.
+- Feature-specific mapping and core-intent realization live in the adapter.
+- Extract shared primitives only when reuse appears across **at least two** adapter stacks; split large vendor packages by stable sub-capabilities, not domain workflows.
+
+## Adapter may
+
+- Import `@core/<feature>/{models,intents,errors}` for its feature.
+- Import `@infrastructure/*` packages of its declared stack.
+- Hold mappers/helpers and plain Zod shapes; project into **core** domain kits (no `@xndrjs/domain` / `domain-zod` in adapter).
+
+## Adapter must not
+
+- Import `/providers` except via app composition.
+- Import unrelated vendor packages “just in case.”
+- Own app composition or domain rules that belong in core `operations/`.
+- Be imported from infrastructure or core.
+
+## Checklist before scaffolding
+
+- [ ] Core boundary exists (or is populated in the same change).
+- [ ] Each vendor infrastructure boundary exists / is populated.
+- [ ] Stack name lists **every** vendor the adapter will import.
+- [ ] DESIGN.md names unrealized core intents this stack will satisfy.
+- [ ] No second parallel stack stuffed into the same package.
+
+## Related
+
+- Intents: `forma-intents`
+- Composition bind: `forma-composition`
+- Package naming: `forma-boundary-design`
+- Boundaries: `forma-boundaries`

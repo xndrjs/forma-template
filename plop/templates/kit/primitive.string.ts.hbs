@@ -1,0 +1,11 @@
+import { domain } from "@xndrjs/domain-zod";
+import { z } from "zod";
+
+export const {{pascalName name}}Primitive = domain.primitive(
+  "{{pascalName name}}",
+  z.string(),
+);
+
+export type {{pascalName name}} = ReturnType<
+  (typeof {{pascalName name}}Primitive)["create"]
+>;

@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    // plop-os-sync start root-tsconfig-refs
+    { "path": "./eslint-rules" }
+    // plop-os-sync end root-tsconfig-refs
+  ]
+}

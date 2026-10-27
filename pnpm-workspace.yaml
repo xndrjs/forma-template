@@ -1,0 +1,11 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tools/*"
+
+catalog:
+  "@xndrjs/domain": 0.4.0-alpha.1
+  "@xndrjs/domain-zod": 0.4.0-alpha.1
+  "@xndrjs/forma": 0.1.0-alpha.0
+  "@xndrjs/plop-os": 0.1.0-alpha.0
+  zod: ^4.4.3

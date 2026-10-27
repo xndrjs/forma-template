@@ -1,0 +1,8 @@
+import { z } from "zod";
+
+/** Adapter / infra shape — structural validation only (not a domain kit). */
+export const {{pascalName name}}Shape = z.object({
+  // TODO: define vendor fields
+});
+
+export type {{pascalName name}} = z.infer<typeof {{pascalName name}}Shape>;

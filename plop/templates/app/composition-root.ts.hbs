@@ -1,0 +1,14 @@
+import "{{runtimeMarker}}";
+
+import { compose } from "@xndrjs/forma";
+
+/**
+ * {{runtime}}-only composition root.
+ */
+export function {{exportName}}() {
+  return compose({
+    surface: {},
+    providers: [],
+    bindings: [],
+  });
+}

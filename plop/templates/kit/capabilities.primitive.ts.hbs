@@ -1,0 +1,8 @@
+import { domain } from "@xndrjs/domain-zod";
+import { {{pascalName kitStem}}Primitive } from "{{kitImport}}.primitive";
+
+export const {{pascalName name}}Capabilities = domain.capabilities
+  .forPrimitiveKit({{pascalName kitStem}}Primitive)
+  .methods(({ patch }) => ({
+    // TODO: add capabilities
+  }));
