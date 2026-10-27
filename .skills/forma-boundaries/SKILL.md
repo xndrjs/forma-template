@@ -74,12 +74,13 @@ Fixed entrypoints only: `@core|<infra|<adapter>/<name>/{models,intents,providers
 
 Typical allowed names under boundary packages:
 
-| Path            | Allowed                                                                                       |
-| --------------- | --------------------------------------------------------------------------------------------- |
-| `*/models/`     | `*.shape.ts`, `*.primitive.ts`, `*.proof.ts`, colocated tests, `index.ts` (infra: Zod shapes) |
-| `*/errors/`     | `*.error.ts`, `index.ts`                                                                      |
-| `*/operations/` | `*.capabilities.ts`, `*.service.ts`, colocated tests, `index.ts`                              |
-| `*/intents/`    | `*.intent.ts`, `*.provider.ts`, `index.intents.ts`, `index.providers.ts`                      |
+| Path                 | Allowed                                                                      |
+| -------------------- | ---------------------------------------------------------------------------- |
+| `core-*/models/`     | `*.shape.ts`, `*.primitive.ts`, `*.proof.ts`, tests, `index.ts`              |
+| adapter / infra `models/` | plain Zod `*.shape.ts`, `index.ts` (no domain-zod kits)                 |
+| `*/errors/`          | `*.error.ts`, `index.ts` (any boundary)                                      |
+| `core-*/operations/` | `*.capabilities.ts`, `*.service.ts`, tests, `index.ts` (**core only**)       |
+| `*/intents/`         | `*.intent.ts`, `*.provider.ts`, `index.intents.ts`, `index.providers.ts`     |
 
 ## If architecture truly changes
 

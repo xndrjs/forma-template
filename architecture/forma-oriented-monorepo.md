@@ -26,7 +26,7 @@
 - Adapter MAY import `@core/*/models|intents|errors` and its stack’s `@infrastructure/*`; MUST NOT import `/providers` except via composition.
 - `/providers` is importable **only** from `apps/*/composition/**`.
 - Cross-core imports forbidden by default.
-- `operations/` has **no** public export — expose cross-boundary behavior via an intent (+ provide).
+- `operations/` is **core-only** and has **no** public export — expose cross-boundary behavior via an intent (+ provide).
 
 **Scaffolding:** `@xndrjs/plop-os` via `plop/plopfile.ts` (root `plopfile.mjs` loader) — `pnpm plop` / `plop:run` / `plop:sync`.
 
@@ -89,20 +89,32 @@ The same raw fetch can feed multiple adapters (or multiple materializers) projec
 
 ---
 
-## Target package layout (core / infra / adapter)
+## Target package layout
+
+**Core** (`packages/core-<feature>/`):
 
 ```text
-packages/<kind>-<name>/
-  models/           # entrypoint @…/models — shapes, primitives, proofs
-  intents/          # *.intent.ts + optional sibling *.provider.ts
-    index.intents.ts    # barrel: all intents
-    index.providers.ts  # barrel: only *.provider.ts (sync)
-  errors/           # entrypoint @…/errors
-  operations/       # CORE ONLY — capabilities / domain services; NOT an entrypoint
-  package.json      # exports: ./models, ./intents, ./providers, ./errors
+  models/              # domain-zod kits: *.primitive / *.shape / *.proof
+  intents/             # *.intent.ts + optional sibling *.provider.ts
+    index.intents.ts   # barrel: all *.intent.ts (plop-os sync)
+    index.providers.ts # barrel: all *.provider.ts (plop-os sync)
+  errors/              # *.error.ts
+  operations/          # INTERNAL — *.capabilities.ts / *.service.ts (not an entrypoint)
+  package.json         # exports: ./models, ./intents, ./providers, ./errors
 ```
 
-`operations/` exists only on `@core/*`. Adapter and infrastructure packages do **not** scaffold it.
+**Adapter / infrastructure** (`packages/adapter-…/`, `packages/infrastructure-…/`):
+
+```text
+  models/              # plain Zod shapes only (no domain-zod kits)
+  intents/
+    index.intents.ts
+    index.providers.ts
+  errors/
+  package.json         # same public exports — no operations/
+```
+
+`operations/` is **core-only**. Adapter and infrastructure scaffolds omit it.
 
 ### Entrypoints
 
@@ -160,16 +172,17 @@ apps/
     composition/          # Forma compose roots (required for wiring)
     package.json
 
-specs/                    # feature specs — not imported by code
-  <feature>/
-    SPEC.md
-    DESIGN.md
-
 packages/
   core-<feature>/         # @core/<feature>
   infrastructure-<vendor>/
   adapter-<feature>-<vendor>/
   ui-<name>/              # @ui/<name> — apps only
+
+plop/                     # generators + templates (@xndrjs/plop-os)
+specs/                    # feature specs — not imported by code
+  <feature>/
+    SPEC.md
+    DESIGN.md
 ```
 
 ---
@@ -188,10 +201,10 @@ Wire with Forma `compose({ surface, providers, bindings })` and `bind(required, 
 | client-only | `import "client-only"` | `<app>.client.composition.ts` | `get…ClientRoot`        |
 
 ```txt
-apps/web-next/
+apps/<app>/
   composition/
-    web-next.server.composition.ts   # server
-    web-next.client.composition.ts   # client
+    <app>.server.composition.ts   # server
+    <app>.client.composition.ts   # client
 ```
 
 Call sites (routes, handlers, UI) import the root from composition — not providers or infrastructure factories directly.
@@ -233,6 +246,7 @@ Root `tsconfig.json` is a solution config (`files: []` + `references`). The `ref
 | ------------------------------- | ------------------------------------------------------------------------ |
 | `@xndrjs/forma`                 | Composition runtime for apps (and types/helpers as needed in packages)   |
 | `@xndrjs/domain` / `domain-zod` | Domain kits in **core** only — not adapter or infrastructure             |
+| `@xndrjs/plop-os`               | Scaffold + sync (`pnpm plop` / `plop:run` / `plop:sync`)                 |
 | `zod`                           | Plain schemas in adapter / infrastructure `models/`; also via domain-zod |
 
 ---

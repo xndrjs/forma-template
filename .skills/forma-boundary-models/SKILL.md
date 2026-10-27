@@ -1,29 +1,29 @@
 ---
 name: forma-boundary-models
-description: Implements or reviews boundary kits and internal operations—*.shape.ts, *.primitive.ts, *.proof.ts, *.capabilities.ts, *.service.ts, and errors/*.error.ts—in @core (domain-zod); plain Zod on adapter and infra. Use when adding kits, capabilities, domain services, or domain errors.
+description: Implements or reviews boundary kits and internal operations—*.shape.ts, *.primitive.ts, *.proof.ts, *.capabilities.ts, *.service.ts in @core (domain-zod); plain Zod shapes + errors/*.error.ts on adapter/infra. Use when adding kits, capabilities, domain services, or errors.
 ---
 
 # Boundary models & operations
 
 ## Architecture context
 
-Entrypoints, kit rules by package kind, internal `operations/`:
+Entrypoints, kit rules by package kind, core-only `operations/`:
 
 [architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Models by package kind_, _Capabilities / services_.
 
-Author kits in order **primitive → shape → proof**, then operations / errors. Prefer `pnpm plop` generators (`shape`, `primitive`, `proof`, …) then `pnpm plop:sync`.
+Author **core** kits in order **primitive → shape → proof**, then operations / errors. Prefer `pnpm plop` (`shape`, `primitive`, `proof`, `errors`, …) then `pnpm plop:sync`.
 
 ## What lives where
 
 | Artifact                  | Path                           | Responsibility                                                                        |
 | ------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
-| Primitive / Shape / Proof | `models/`                      | Structure; `create` + Zod validation; proofs = extra guarantees on already-valid data |
-| Capabilities              | `operations/*.capabilities.ts` | Custom methods on **one** kit beyond create/validation                                |
-| Domain service            | `operations/*.service.ts`      | Pure cross-model domain logic (same feature)                                          |
+| Primitive / Shape / Proof | core `models/`                 | domain-zod kits; proofs = extra guarantees on already-valid data                      |
+| Capabilities              | core `operations/*.capabilities.ts` | Custom methods on **one** kit beyond create/validation                           |
+| Domain service            | core `operations/*.service.ts` | Pure cross-model domain logic (same feature)                                          |
 | Error                     | `errors/*.error.ts`            | Typed errors on any boundary (core / adapter / infra); not under `models/`            |
-| Adapter / infra shape     | adapter or infra `models/`     | **Plain Zod** only — no `@xndrjs/domain` / `domain-zod`                               |
+| Adapter / infra shape     | adapter or infra `models/`     | **Plain Zod** only — no `@xndrjs/domain` / `domain-zod`; **no** `operations/`         |
 
-`operations/` has **no** public export. Cross-boundary behavior → wrap in an intent (+ provider).
+Core `operations/` has **no** public export. Cross-boundary behavior → wrap in an intent (+ provider).
 
 ## Order
 
@@ -104,7 +104,7 @@ Plain Zod shapes only (DTOs, vendor/raw structural validation, materialization h
 - Using `*.model.ts` / ports / use-cases as kit homes.
 - Business rules only in adapters or React.
 - Capabilities that orchestrate I/O (belongs in intent provide / adapter).
-- Exporting `operations/` as a package entrypoint.
+- Exporting `operations/` as a package entrypoint, or adding `operations/` on adapter/infra.
 
 ## Related
 

@@ -26,7 +26,7 @@ Intent, actors, stories, acceptance criteria—technology- and vendor-agnostic. 
 
 **To-be catalog** (not a delta), in Forma vocabulary:
 
-- `@core/<feature>` boundaries and kits (models / errors / operations)
+- `@core/<feature>` boundaries and kits (models / errors / core-only operations)
 - Intents (unrealized vs realized) and which boundary owns provide
 - `@infrastructure/<vendor>` packages needed for the stack
 - `@adapter/<feature>-<vendor>[…]` stacks and materialization responsibilities
@@ -40,8 +40,9 @@ Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition
 After approval of `SPEC.md` + `DESIGN.md` (or delivery mode—see feature-workflow skill):
 
 ```text
-Boundary kits (primitive → shape → proof)
-  → Capabilities / domain services (operations/)
+Boundary kits (primitive → shape → proof) on core
+  → Capabilities / domain services (core operations/ only)
+  → Errors (any boundary errors/)
   → Intents (± provide)
   → Infrastructure (raw) + Adapter (materialize / realize core intents)
   → Composition (providers, bind, surface)

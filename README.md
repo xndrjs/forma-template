@@ -1,19 +1,16 @@
-# Forma-oriented monorepo
+# Forma-oriented monorepo template
 
-Monorepo for fullstack TypeScript projects organized around **Forma** boundaries, intents, providers, and composition.
+Empty TypeScript monorepo template organized around **Forma** boundaries, intents, providers, and composition. Scaffold packages/apps with `@xndrjs/plop-os` (`pnpm plop`).
 
 Canonical architecture: [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md).
 
-The base structure is:
-
 ```txt
-apps/
-packages/
-architecture/
-specs/
+apps/            # deployable apps (composition roots)
+packages/        # @core/* · @infrastructure/* · @adapter/* · @ui/*
+plop/            # generators + templates
+architecture/    # Forma bible + spec workflow
+specs/           # feature SPEC.md / DESIGN.md
 ```
-
-`apps/` contains deployable or executable applications. `packages/` holds `@core/*`, `@infrastructure/*`, `@adapter/*`, and `@ui/*`.
 
 ## Tooling
 
@@ -89,37 +86,43 @@ Boundary packages (`core` / `infrastructure` / `adapter`) expose:
 
 ```txt
 packages/core-<feature>/
-  models/
-  intents/          # *.intent.ts; index.intents.ts + index.providers.ts barrels
+  models/           # domain-zod kits
+  intents/          # *.intent.ts + optional *.provider.ts; index.*.ts barrels
   errors/
-  operations/       # internal only — not exported
+  operations/       # core-only, internal (capabilities / services)
   package.json
   tsconfig.json
+
+packages/adapter-<feature>-<vendor>/   # or infrastructure-<vendor>/
+  models/           # plain Zod shapes
+  intents/
+  errors/
+  package.json      # no operations/
 ```
 
-- **Core** — feature-specific, vendor-agnostic.
-- **Infrastructure** — vendor-specific, feature-agnostic (raw fetch, clients).
-- **Adapter** — `adapter-<feature>-<vendor>[…]`; joins one core to a vendor stack; materializes domain.
+- **Core** — feature-specific, vendor-agnostic; owns domain kits + `operations/`.
+- **Infrastructure** — vendor-specific, feature-agnostic (raw fetch, clients); no `operations/`.
+- **Adapter** — `adapter-<feature>-<vendor>[…]`; joins one core to a vendor stack; no `operations/`.
 - **UI** — `@ui/<name>`; importable from apps only.
 
 `/providers` may be imported **only** from `apps/*/composition/**`.
 
 ### Composition
 
-Apps own Forma composition roots under `composition/`. Prefer one file per runtime (server or client) with explicit `server-only` / `client-only`.
+Apps own Forma composition roots under `composition/`. Prefer one file per runtime (server or client) with explicit `server-only` / `client-only` (example):
 
 ```txt
-apps/web-next/
+apps/<app>/
   composition/
-    web-next.server.composition.ts
-    web-next.client.composition.ts
+    <app>.server.composition.ts
+    <app>.client.composition.ts
 ```
 
 Wire with Forma `compose({ surface, providers, bindings })` and `bind(required, satisfier)`.
 
-### Domain kits
+### Domain kits (core)
 
-Order: `primitive` → `shape` → `proof` → capabilities / services in `operations/`. Domain errors under `errors/`.
+Order: `primitive` → `shape` → `proof` → capabilities / services in core `operations/`. Errors (`*.error.ts`) under `errors/` on any boundary.
 
 ```txt
 packages/core-billing/models/email.primitive.ts
@@ -167,7 +170,7 @@ Task-specific guides live in [`.skills/`](./.skills/) (canonical). Symlinks expo
 | `forma-spec-map`         | Multi-capability / god-spec decomposition      |
 | `forma-feature-workflow` | Multi-boundary feature implementation          |
 | `forma-boundary-design`  | Boundary package naming and scope              |
-| `forma-boundary-models`  | Kits, capabilities, services, domain errors    |
+| `forma-boundary-models`  | Kits, capabilities, services, errors           |
 | `forma-intents`          | Intents ± provide                              |
 | `forma-adapter-stacks`   | Adapter naming; fetch-raw vs materialize       |
 | `forma-composition`      | App composition (`compose` / `bind` / surface) |
@@ -185,6 +188,6 @@ Principles:
 - UI packages (`@ui/*`) are consumed from apps only;
 - core packages do not import frameworks or external SDKs;
 - packages do not import code from `apps/`;
-- boundary packages expose only `models`, `intents`, `providers`, `errors` — `operations/` is internal;
+- boundary packages expose only `models`, `intents`, `providers`, `errors` — core `operations/` is internal and absent on adapter/infra;
 - `/providers` is importable only from `apps/*/composition/**`;
 - each app’s `composition/` folder is the Forma wiring point (`compose`, providers, bind, surface).

@@ -70,7 +70,7 @@ Until `SPEC.md` is technology-agnostic, Phase 1 is incomplete. Write **to-be**, 
 | Section              | Content                                                              |
 | -------------------- | -------------------------------------------------------------------- |
 | **Core boundary**    | `@core/<feature>` ownership                                          |
-| **Kits**             | primitives / shapes / proofs; capabilities / services; domain errors |
+| **Kits**             | primitives / shapes / proofs; capabilities / services; errors        |
 | **Intents**          | unrealized vs realized; which boundary owns provide                  |
 | **Infrastructure**   | `@infrastructure/<vendor>` for the stack (fetch raw)                 |
 | **Adapter stack(s)** | `@adapter/<feature>-<vendors…>`; materialize / realize core intents  |
@@ -103,7 +103,7 @@ Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition
 
 ## Phase 2 — Boundary kits (`models/` + errors)
 
-Implement DESIGN kits in order: **primitive → shape → proof**; add domain errors under `errors/`.
+Implement DESIGN kits in order: **primitive → shape → proof**; add errors under `errors/` (any boundary). Capabilities/services only in core `operations/`.
 
 1. Add kits via `pnpm plop` (`shape` / `primitive` / `proof`) or by hand; fill Zod / `refineType`; `pnpm plop:sync`.
 2. Colocate tests when non-trivial.
