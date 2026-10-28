@@ -14,7 +14,7 @@ export function registerShape(
 ): void {
   plop.setGenerator("shape", {
     description:
-      "Scaffold domain-zod *.shape.ts (core) or plain Zod shape (adapter/infra)",
+      "Scaffold domain-zod *.shape.ts (core) or plain Zod *.schema.ts (infra)",
     prompts: [
       {
         type: "list",
@@ -22,33 +22,36 @@ export function registerShape(
         message: "package kind",
         choices: [
           { name: "core (@xndrjs/domain-zod shape)", value: "core" },
-          { name: "adapter (plain Zod)", value: "adapter" },
-          { name: "infrastructure (plain Zod)", value: "infra" },
+          { name: "infrastructure (plain Zod schema)", value: "infra" },
         ],
       },
       {
         type: "list",
         name: "layerPath",
-        message: "package models/",
+        message(answers) {
+          return answers.kind === "core"
+            ? "package models/"
+            : "package schemas/";
+        },
         choices(answers) {
           const hits =
             answers.kind === "core"
               ? plopOs.candidates(rules.coreModels)
-              : answers.kind === "adapter"
-                ? plopOs.candidates(rules.adapterModels)
-                : plopOs.candidates(rules.infraModels);
+              : plopOs.candidates(rules.infraSchemas);
           if (hits.length === 0)
-            throw new Error("no models dirs for that kind");
+            throw new Error(
+              answers.kind === "core"
+                ? "no models dirs for that kind"
+                : "no schemas dirs for that kind",
+            );
           return hits.map((c) => ({ name: c.label, value: c.path }));
         },
         validate(v: unknown, answers) {
           try {
             if (answers.kind === "core") {
               plopOs.resolveCandidate(rules.coreModels, String(v));
-            } else if (answers.kind === "adapter") {
-              plopOs.resolveCandidate(rules.adapterModels, String(v));
             } else {
-              plopOs.resolveCandidate(rules.infraModels, String(v));
+              plopOs.resolveCandidate(rules.infraSchemas, String(v));
             }
             return true;
           } catch (e) {
@@ -56,22 +59,43 @@ export function registerShape(
           }
         },
       },
-      nestedDestPrompt(plopOs, rules.modelsDirs, { layerPathKey: "layerPath" }),
+      {
+        ...nestedDestPrompt(plopOs, rules.modelsDirs, {
+          layerPathKey: "layerPath",
+        }),
+        when(answers: { kind?: string }) {
+          return answers.kind === "core";
+        },
+      },
+      {
+        ...nestedDestPrompt(plopOs, rules.schemasDirs, {
+          layerPathKey: "layerPath",
+        }),
+        when(answers: { kind?: string }) {
+          return answers.kind === "infra";
+        },
+      },
       newSubdirPrompt(),
-      kebabNamePrompt("shape name (kebab-case)"),
+      kebabNamePrompt("name (kebab-case)"),
     ],
     actions(answers) {
       const dest = resolveDest(answers.destPath, answers.newSubdir);
       const rel = relPosix(root, dest);
-      const tpl =
-        answers.kind === "core"
-          ? T("kit/shape.domain.ts.hbs")
-          : T("kit/shape.zod.ts.hbs");
+      if (answers.kind === "infra") {
+        return [
+          {
+            type: "add",
+            path: `${rel}/{{name}}.schema.ts`,
+            templateFile: T("kit/schema.zod.ts.hbs"),
+            ...defaultFlags(),
+          },
+        ];
+      }
       return [
         {
           type: "add",
           path: `${rel}/{{name}}.shape.ts`,
-          templateFile: tpl,
+          templateFile: T("kit/shape.domain.ts.hbs"),
           ...defaultFlags(),
         },
       ];

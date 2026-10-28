@@ -56,24 +56,37 @@ export function registerDiscovery(plopOs: PlopOs) {
     filter: dirOnly,
   });
 
-  const adapterModels = plopOs.addDiscoveryRule({
-    name: "adapter-models",
-    pattern: "packages/adapter-:stack/models",
+  const adapterMappers = plopOs.addDiscoveryRule({
+    name: "adapter-mappers",
+    pattern: "packages/adapter-:stack/mappers",
     label: ({ data }) => data.stack,
     filter: dirOnly,
   });
 
-  const infraModels = plopOs.addDiscoveryRule({
-    name: "infra-models",
-    pattern: "packages/infrastructure-:vendor/models",
+  const infraSchemas = plopOs.addDiscoveryRule({
+    name: "infra-schemas",
+    pattern: "packages/infrastructure-:vendor/schemas",
     label: ({ data }) => data.vendor,
     filter: dirOnly,
   });
 
   const modelsDirs = plopOs.addDiscoveryRule<{ dirPath: string }>({
     name: "models-dirs",
-    pattern:
-      /^packages\/(?:core|adapter|infrastructure)-[^/]+\/models(?:\/(?<dirPath>.+))?$/,
+    pattern: /^packages\/core-[^/]+\/models(?:\/(?<dirPath>.+))?$/,
+    label: ({ data }) => data.dirPath || ".",
+    filter: dirOnly,
+  });
+
+  const schemasDirs = plopOs.addDiscoveryRule<{ dirPath: string }>({
+    name: "schemas-dirs",
+    pattern: /^packages\/infrastructure-[^/]+\/schemas(?:\/(?<dirPath>.+))?$/,
+    label: ({ data }) => data.dirPath || ".",
+    filter: dirOnly,
+  });
+
+  const mappersDirs = plopOs.addDiscoveryRule<{ dirPath: string }>({
+    name: "mappers-dirs",
+    pattern: /^packages\/adapter-[^/]+\/mappers(?:\/(?<dirPath>.+))?$/,
     label: ({ data }) => data.dirPath || ".",
     filter: dirOnly,
   });
@@ -103,8 +116,22 @@ export function registerDiscovery(plopOs: PlopOs) {
 
   const shapeFiles = plopOs.addDiscoveryRule<{ rel: string }>({
     name: "shape-files",
+    pattern: /^packages\/core-[^/]+\/models\/(?<rel>.+)\.shape\.ts$/,
+    label: ({ data }) => data.rel,
+    filter: fileOnly,
+  });
+
+  const schemaFiles = plopOs.addDiscoveryRule<{ rel: string }>({
+    name: "schema-files",
     pattern:
-      /^packages\/(?:core|adapter|infrastructure)-[^/]+\/models\/(?<rel>.+)\.shape\.ts$/,
+      /^packages\/infrastructure-[^/]+\/schemas\/(?<rel>.+)\.schema\.ts$/,
+    label: ({ data }) => data.rel,
+    filter: fileOnly,
+  });
+
+  const mapperFiles = plopOs.addDiscoveryRule<{ rel: string }>({
+    name: "mapper-files",
+    pattern: /^packages\/adapter-[^/]+\/mappers\/(?<rel>.+)\.mapper\.ts$/,
     label: ({ data }) => data.rel,
     filter: fileOnly,
   });
@@ -183,13 +210,17 @@ export function registerDiscovery(plopOs: PlopOs) {
     apps,
     compositionRoots,
     coreModels,
-    adapterModels,
-    infraModels,
+    adapterMappers,
+    infraSchemas,
     modelsDirs,
+    schemasDirs,
+    mappersDirs,
     errorsDirs,
     operationsDirs,
     intentsDirs,
     shapeFiles,
+    schemaFiles,
+    mapperFiles,
     primitiveFiles,
     proofFiles,
     errorFiles,
