@@ -6,21 +6,12 @@ settings:
 
 catalogs:
   default:
-    '@xndrjs/domain':
-      specifier: 0.4.0-alpha.1
-      version: 0.4.0-alpha.1
-    '@xndrjs/domain-zod':
-      specifier: 0.4.0-alpha.1
-      version: 0.4.0-alpha.1
     '@xndrjs/forma':
       specifier: 0.1.0-alpha.0
       version: 0.1.0-alpha.0
     '@xndrjs/plop-os':
       specifier: 0.1.0-alpha.0
       version: 0.1.0-alpha.0
-    zod:
-      specifier: ^4.4.3
-      version: 4.6.7
 
 importers:
 
@@ -56,6 +47,9 @@ importers:
       husky:
         specifier: ^9.1.7
         version: 9.1.7
+      jiti:
+        specifier: ^2.7.0
+        version: 2.7.0
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
@@ -80,63 +74,6 @@ importers:
       vitest:
         specifier: ^4.1.6
         version: 4.1.6(@types/node@25.9.1)(jsdom@29.1.1)(vite@8.0.13(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.0))
-
-  apps/web:
-    dependencies:
-      '@xndrjs/forma':
-        specifier: 'catalog:'
-        version: 0.1.0-alpha.0
-      client-only:
-        specifier: ^0.0.1
-        version: 0.0.1
-      server-only:
-        specifier: ^0.0.1
-        version: 0.0.1
-
-  packages/adapter-pagebuilder-contentful:
-    dependencies:
-      '@core/pagebuilder':
-        specifier: workspace:*
-        version: link:../core-pagebuilder
-      '@infrastructure/contentful':
-        specifier: workspace:*
-        version: link:../infrastructure-contentful
-      '@xndrjs/forma':
-        specifier: 'catalog:'
-        version: 0.1.0-alpha.0
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
-
-  packages/core-pagebuilder:
-    dependencies:
-      '@xndrjs/domain':
-        specifier: 'catalog:'
-        version: 0.4.0-alpha.1
-      '@xndrjs/domain-zod':
-        specifier: 'catalog:'
-        version: 0.4.0-alpha.1(zod@4.6.7)
-      '@xndrjs/forma':
-        specifier: 'catalog:'
-        version: 0.1.0-alpha.0
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
-
-  packages/infrastructure-contentful:
-    dependencies:
-      '@xndrjs/forma':
-        specifier: 'catalog:'
-        version: 0.1.0-alpha.0
-      zod:
-        specifier: 'catalog:'
-        version: 4.6.7
-
-  packages/ui-react:
-    dependencies:
-      react:
-        specifier: ^19.0.0
-        version: 19.3.1
 
 packages:
 
@@ -799,16 +736,6 @@ packages:
   '@vitest/utils@4.1.6':
     resolution: {integrity: sha512-FxIY+U81R3LGKCxaHHFRQ5+g6/iRgGLmeHWdp2Amj4ljQRrEIWHmZyDfDYBRZlpyqA7qKxtS9DD1dhk8RnRIVQ==}
 
-  '@xndrjs/domain-zod@0.4.0-alpha.1':
-    resolution: {integrity: sha512-co1fd7ssFalQcNZWl1GxP90rTAVTWF/yaQaj/CZPiKFCCAidUNin/uw1MU1HVFxko5QQqi5H9meCmrOBfwjdCA==}
-    engines: {node: '>=24 <26'}
-    peerDependencies:
-      zod: ^4.0.0
-
-  '@xndrjs/domain@0.4.0-alpha.1':
-    resolution: {integrity: sha512-M94oVPSokgW674YL5YYw/BtgrR6B584vZI1OvU2NRdWb3DU9t2wJN71UAQ6nzX/fx7Dxyr8fxGOxDLPsVWI7KQ==}
-    engines: {node: '>=24 <26'}
-
   '@xndrjs/forma@0.1.0-alpha.0':
     resolution: {integrity: sha512-Uub11sf55+VJA9JhFS7aQlw9A47CT3jxtiLUmn2y56nt5YDQcupZrxqreyODIG9wW2RUR4UDxjOXZlL0Mkt9aA==}
     engines: {node: '>=24 <26'}
@@ -935,9 +862,6 @@ packages:
   cli-width@4.1.0:
     resolution: {integrity: sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==}
     engines: {node: '>= 12'}
-
-  client-only@0.0.1:
-    resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
 
   clone@1.0.4:
     resolution: {integrity: sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==}
@@ -1827,10 +1751,6 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  react@19.3.1:
-    resolution: {integrity: sha512-QNhWdt7nrgVWWQG58QuGsAR3jv3Hbe4mb4vz7w2csnHavciZJgda1CPNaldF6eVxv90ud3jUXpKlHL69gO38yw==}
-    engines: {node: '>=0.10.0'}
-
   readable-stream@3.6.2:
     resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
     engines: {node: '>= 6'}
@@ -1892,9 +1812,6 @@ packages:
     resolution: {integrity: sha512-AcM7dV/5ul4EekoQ29Agm5vri8JNqRyj39o0qpX6vDF2GZrtutZl5RwgD1XnZjiTAfncsJhMI48QQH3sN87YNA==}
     engines: {node: '>=10'}
     hasBin: true
-
-  server-only@0.0.1:
-    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -2252,9 +2169,6 @@ packages:
   yoctocolors-cjs@2.1.3:
     resolution: {integrity: sha512-U/PBtDf35ff0D8X8D0jfdzHYEPFxAI7jJlxZXwCSez5M3190m+QobIfh+sWDWSHMCWWJN2AWamkegn6vr6YBTw==}
     engines: {node: '>=18'}
-
-  zod@4.6.7:
-    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -2819,13 +2733,6 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@xndrjs/domain-zod@0.4.0-alpha.1(zod@4.6.7)':
-    dependencies:
-      '@xndrjs/domain': 0.4.0-alpha.1
-      zod: 4.6.7
-
-  '@xndrjs/domain@0.4.0-alpha.1': {}
-
   '@xndrjs/forma@0.1.0-alpha.0': {}
 
   '@xndrjs/plop-os@0.1.0-alpha.0(@types/node@25.9.1)(plop@4.0.5(@types/node@25.9.1))':
@@ -2932,8 +2839,6 @@ snapshots:
       string-width: 8.2.1
 
   cli-width@4.1.0: {}
-
-  client-only@0.0.1: {}
 
   clone@1.0.4: {}
 
@@ -3393,8 +3298,7 @@ snapshots:
 
   isobject@3.0.1: {}
 
-  jiti@2.7.0:
-    optional: true
+  jiti@2.7.0: {}
 
   jsdom@29.1.1:
     dependencies:
@@ -4037,8 +3941,6 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  react@19.3.1: {}
-
   readable-stream@3.6.2:
     dependencies:
       inherits: 2.0.4
@@ -4113,8 +4015,6 @@ snapshots:
       xmlchars: 2.2.0
 
   semver@7.8.0: {}
-
-  server-only@0.0.1: {}
 
   shebang-command@2.0.0:
     dependencies:
@@ -4427,7 +4327,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yoctocolors-cjs@2.1.3: {}
-
-  zod@4.6.7: {}
 
   zwitch@2.0.4: {}

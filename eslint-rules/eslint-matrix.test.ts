@@ -20,45 +20,89 @@ function hasRule(messages: { ruleId: string | null }[], ruleId: string) {
   return messages.some((m) => m.ruleId === ruleId);
 }
 
+function dependencyRulesFor(config: { rules?: Record<string, unknown> }) {
+  const deps = config.rules?.["boundaries/dependencies"];
+  const options = Array.isArray(deps) ? deps[1] : null;
+  return (
+    (
+      options as { rules?: { from?: unknown; allow?: unknown }[] } | null
+    )?.rules ?? []
+  );
+}
+
 describe("Forma ESLint matrix", () => {
-  it("bans /providers outside apps/*/composition/**", async () => {
+  it("allows *-providers only from app-composition in boundaries matrix", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "apps/web/composition/root.ts"),
+    );
+    const rules = dependencyRulesFor(config);
+    const composition = rules.find((rule) =>
+      JSON.stringify(rule.from ?? null).includes("app-composition"),
+    );
+    const allow = JSON.stringify(composition?.allow ?? null);
+    expect(allow).toContain("core-providers");
+    expect(allow).toContain("infrastructure-providers");
+    expect(allow).toContain("adapter-providers");
+
+    const app = rules.find(
+      (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
+    );
+    const appAllow = JSON.stringify(app?.allow ?? null);
+    expect(appAllow).not.toContain("providers");
+  });
+
+  it("still bans deep core imports via no-restricted-imports", async () => {
     const messages = await lintAt(
       "apps/web/routes/page.ts",
-      'import "@core/pagebuilder/providers";\n',
+      'import "@core/pagebuilder/models/deep";\n',
     );
     expect(hasRule(messages, "no-restricted-imports")).toBe(true);
   });
 
-  it("allows /providers from apps/*/composition/**", async () => {
-    const messages = await lintAt(
-      "apps/web/composition/root.ts",
-      'import "@core/pagebuilder/providers";\n',
+  it("disallows infrastructure → core in boundaries matrix", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(
+        repoRoot,
+        "packages/infrastructure-contentful/models/index.ts",
+      ),
     );
-    expect(hasRule(messages, "no-restricted-imports")).toBe(false);
+    const rules = dependencyRulesFor(config);
+    expect(rules.length).toBeGreaterThan(0);
+    for (const rule of rules) {
+      if (!JSON.stringify(rule.from ?? null).includes("infrastructure")) {
+        continue;
+      }
+      expect(JSON.stringify(rule.allow ?? null)).not.toContain("core-");
+    }
   });
 
-  it("bans infrastructure → @core/*", async () => {
-    const messages = await lintAt(
-      "packages/infrastructure-contentful/client.ts",
-      'import "@core/pagebuilder/models";\n',
+  it("disallows core → adapter in boundaries matrix", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "packages/core-pagebuilder/models/index.ts"),
     );
-    expect(hasRule(messages, "no-restricted-imports")).toBe(true);
+    const rules = dependencyRulesFor(config);
+    expect(rules.length).toBeGreaterThan(0);
+    for (const rule of rules) {
+      if (!JSON.stringify(rule.from ?? null).includes("core-")) {
+        continue;
+      }
+      expect(JSON.stringify(rule.allow ?? null)).not.toContain("adapter");
+    }
   });
 
-  it("bans core → @adapter/*", async () => {
-    const messages = await lintAt(
-      "packages/core-pagebuilder/models/index.ts",
-      'import "@adapter/pagebuilder-contentful/models";\n',
+  it("disallows app → providers in boundaries matrix", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "apps/web/routes/page.ts"),
     );
-    expect(hasRule(messages, "no-restricted-imports")).toBe(true);
-  });
-
-  it("bans adapter → /providers", async () => {
-    const messages = await lintAt(
-      "packages/adapter-pagebuilder-contentful/materialize.ts",
-      'import "@core/pagebuilder/providers";\n',
+    const rules = dependencyRulesFor(config);
+    const app = rules.find(
+      (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
     );
-    expect(hasRule(messages, "no-restricted-imports")).toBe(true);
+    expect(JSON.stringify(app?.allow ?? null)).not.toContain("providers");
   });
 
   it("enforces Forma package kinds (intents/adapter), not ports/use-cases layers", async () => {
@@ -72,5 +116,6 @@ describe("Forma ESLint matrix", () => {
     expect(serialized).not.toContain("core-use-cases");
     expect(serialized).toContain("core-intents");
     expect(serialized).toContain("adapter");
+    expect(serialized).toContain("core-providers");
   });
 });
