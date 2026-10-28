@@ -151,16 +151,16 @@ Live only under core `operations/`. If they must be reachable across boundaries 
 
 ## ESLint import matrix
 
-| From ↓ / To →              | core                                                        | infra                       | adapter            | ui      | `/providers`            |
-| -------------------------- | ----------------------------------------------------------- | --------------------------- | ------------------ | ------- | ----------------------- |
-| **core**                   | same feature / own entrypoints only                         | no                          | no                 | no      | —                       |
-| **infra**                  | no `@core/*`                                                | same vendor ok              | no                 | no      | —                       |
-| **adapter**                | `/models`, `/intents`, `/errors` of its core                | infra packages of its stack | no (default)       | no      | no (except composition) |
-| **ui**                     | no                                                          | no                          | no                 | ui only | —                       |
-| **apps (non-composition)** | models / intents / errors / ui; not infra; not `/providers` | no                          | no `/providers`    | yes     | no                      |
-| **apps/composition**       | yes + `/providers`                                          | yes + `/providers`          | yes + `/providers` | yes     | yes                     |
+| From ↓ / To →              | core                                                                      | infra                       | adapter            | ui      | `/providers`            |
+| -------------------------- | ------------------------------------------------------------------------- | --------------------------- | ------------------ | ------- | ----------------------- |
+| **core**                   | same feature / own entrypoints only                                       | no                          | no                 | no      | —                       |
+| **infra**                  | no `@core/*`                                                              | same vendor ok              | no                 | no      | —                       |
+| **adapter**                | `/models`, `/intents`, `/errors` of its core                              | infra packages of its stack | no (default)       | no      | no (except composition) |
+| **ui**                     | no                                                                        | no                          | no                 | ui only | —                       |
+| **apps (non-composition)** | models / intents / errors (not operations); not infra; not `/providers` | no                          | no `/providers`    | yes     | no                      |
+| **apps/composition**       | models / intents / errors + `/providers` (not operations)                 | yes + `/providers`          | yes + `/providers` | yes     | yes                     |
 
-Refine with `eslint-plugin-boundaries` + `no-restricted-imports` in root `eslint.config.js`. Cross-core imports: forbidden by default.
+Implemented in [`eslint-rules/boundaries/`](../eslint-rules/boundaries/) (`boundaries` + `no-restricted-imports` + `check-file`); root `eslint.config.js` loads it via jiti. Cross-core imports: forbidden by default. `core-operations` is importable only from same-feature `core-intents` / `core-operations` — never from apps or composition.
 
 ---
 
@@ -209,10 +209,10 @@ apps/<app>/
 
 Call sites (routes, handlers, UI) import the root from composition — not providers or infrastructure factories directly.
 
-| Actor                   | Allowed imports                                                                                                                |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `apps/*/composition/**` | `@core/*` (incl. `/providers`), `@infrastructure/*` (incl. `/providers`), `@adapter/*` (incl. `/providers`), `@ui/*`, app code |
-| Rest of app             | `@core/*/models\|intents\|errors`, `@ui/*`, composition roots; **not** `/providers`, **not** infrastructure                    |
+| Actor                   | Allowed imports                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apps/*/composition/**` | `@core/*/models\|intents\|errors\|providers` (not operations), `@infrastructure/*` (incl. `/providers`), `@adapter/*` (incl. `/providers`), `@ui/*`, app code |
+| Rest of app             | `@core/*/models\|intents\|errors`, `@ui/*`, composition roots; **not** `/providers`, **not** infrastructure, **not** operations                              |
 | `@core/*`               | MUST NOT import apps, infrastructure, adapter, or UI                                                                           |
 | `@infrastructure/*`     | MUST NOT import `@core/*` or orchestrate app composition                                                                       |
 | `@adapter/*`            | Core models/intents/errors + its infra stack                                                                                   |

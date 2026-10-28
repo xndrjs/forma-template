@@ -23,7 +23,7 @@ Author **core** kits in order **primitive → shape → proof**, then operations
 | Error                     | `errors/*.error.ts`            | Typed errors on any boundary (core / adapter / infra); not under `models/`            |
 | Adapter / infra shape     | adapter or infra `models/`     | **Plain Zod** only — no `@xndrjs/domain` / `domain-zod`; **no** `operations/`         |
 
-Core `operations/` has **no** public export. Cross-boundary behavior → wrap in an intent (+ provider).
+Core `operations/` has **no** public export. Callers are **same-package only**: same-feature `intents/` / `operations/` (and their providers). **Never** import `operations/` from apps, composition, adapter, or infra — cross-boundary behavior → wrap in an intent (+ provider).
 
 ## Order
 
@@ -72,7 +72,7 @@ export const PageCapabilities = domain.capabilities
 
 **Forbidden method names:** `validate`, `create`, or other kit-lifecycle aliases — use `XxxShape.create` / `XxxPrimitive.create`.
 
-Do **not** wire capability attach in composition. Callers import from the same package’s operations (or via an intent provide that calls into operations).
+Do **not** wire capability attach in composition or apps. Callers import from the same package’s `operations/` (intents/providers), or call operations only from an intent provide in that package.
 
 ## Domain services
 
@@ -104,7 +104,7 @@ Plain Zod shapes only (DTOs, vendor/raw structural validation, materialization h
 - Using `*.model.ts` / ports / use-cases as kit homes.
 - Business rules only in adapters or React.
 - Capabilities that orchestrate I/O (belongs in intent provide / adapter).
-- Exporting `operations/` as a package entrypoint, or adding `operations/` on adapter/infra.
+- Exporting `operations/` as a package entrypoint, importing it from apps/composition, or adding `operations/` on adapter/infra.
 
 ## Related
 

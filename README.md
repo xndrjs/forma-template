@@ -12,6 +12,17 @@ architecture/    # Forma bible + spec workflow
 specs/           # feature SPEC.md / DESIGN.md
 ```
 
+## First 15 minutes
+
+```sh
+node -v            # expect Node 22+ (see .nvmrc / engines)
+corepack enable
+pnpm install
+pnpm typecheck && pnpm lint && pnpm test
+pnpm plop          # scaffold first boundary/app
+pnpm plop:sync     # barrels + root tsconfig references
+```
+
 ## Tooling
 
 The workspace uses:
@@ -146,11 +157,9 @@ Artifact prompts: Discovery list package → nested dest under the layer (option
 
 ## ESLint in the monorepo
 
-ESLint is defined at the root level in `eslint.config.js`.
+Root [`eslint.config.js`](./eslint.config.js) is a thin loader (base lint + jiti). The Forma import matrix lives in [`eslint-rules/boundaries/`](./eslint-rules/boundaries/) (`boundaries`, `no-restricted-imports`, `check-file`).
 
-A single central configuration keeps package-kind boundaries, entrypoint bans, and shared conventions consistent. Differences between apps, core, infrastructure, adapter, and UI packages are expressed through `files` blocks in the flat config.
-
-Physically separate configurations per app or package should be avoided unless a package becomes truly autonomous.
+A single central configuration keeps package-kind boundaries, entrypoint bans, and shared conventions consistent. Physically separate configurations per app or package should be avoided unless a package becomes truly autonomous.
 
 ## Architecture documentation
 
@@ -178,7 +187,7 @@ Task-specific guides live in [`.skills/`](./.skills/) (canonical). Symlinks expo
 
 ## Architectural boundaries
 
-Boundaries are enforced through `eslint-plugin-boundaries` and `no-restricted-imports`.
+Boundaries are enforced through `eslint-plugin-boundaries` and `no-restricted-imports` in [`eslint-rules/boundaries/`](./eslint-rules/boundaries/). Full matrix: [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md).
 
 Principles:
 
@@ -188,6 +197,6 @@ Principles:
 - UI packages (`@ui/*`) are consumed from apps only;
 - core packages do not import frameworks or external SDKs;
 - packages do not import code from `apps/`;
-- boundary packages expose only `models`, `intents`, `providers`, `errors` — core `operations/` is internal and absent on adapter/infra;
+- boundary packages expose only `models`, `intents`, `providers`, `errors` — core `operations/` is internal (same-feature intents/ops only; never apps/composition) and absent on adapter/infra;
 - `/providers` is importable only from `apps/*/composition/**`;
 - each app’s `composition/` folder is the Forma wiring point (`compose`, providers, bind, surface).
