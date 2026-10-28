@@ -30,7 +30,50 @@ function dependencyRulesFor(config: { rules?: Record<string, unknown> }) {
   );
 }
 
+function allowTypes(rule: { allow?: unknown } | undefined): string {
+  return JSON.stringify(rule?.allow ?? null);
+}
+
 describe("Forma ESLint matrix", () => {
+  it("splits infrastructure/adapter into models|intents|errors|providers elements", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "apps/web/composition/root.ts"),
+    );
+    const elements = JSON.stringify(
+      config.settings?.["boundaries/elements"] ?? null,
+    );
+    for (const layer of ["models", "intents", "errors", "providers"] as const) {
+      expect(elements).toContain(`infrastructure-${layer}`);
+      expect(elements).toContain(`adapter-${layer}`);
+    }
+    // Monolith package elements must not remain
+    expect(elements).not.toMatch(/"type":"infrastructure"/);
+    expect(elements).not.toMatch(/"type":"adapter"/);
+  });
+
+  it("bans core-operations from app-composition and app", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "apps/web/composition/root.ts"),
+    );
+    const rules = dependencyRulesFor(config);
+    const composition = rules.find((rule) =>
+      JSON.stringify(rule.from ?? null).includes("app-composition"),
+    );
+    const app = rules.find(
+      (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
+    );
+    expect(allowTypes(composition)).not.toContain("core-operations");
+    expect(allowTypes(app)).not.toContain("core-operations");
+
+    const intents = rules.find(
+      (rule) =>
+        JSON.stringify(rule.from ?? null) === '{"type":"core-intents"}',
+    );
+    expect(allowTypes(intents)).toContain("core-operations");
+  });
+
   it("allows *-providers only from app-composition in boundaries matrix", async () => {
     const eslint = new ESLint({ cwd: repoRoot });
     const config = await eslint.calculateConfigForFile(
@@ -40,7 +83,7 @@ describe("Forma ESLint matrix", () => {
     const composition = rules.find((rule) =>
       JSON.stringify(rule.from ?? null).includes("app-composition"),
     );
-    const allow = JSON.stringify(composition?.allow ?? null);
+    const allow = allowTypes(composition);
     expect(allow).toContain("core-providers");
     expect(allow).toContain("infrastructure-providers");
     expect(allow).toContain("adapter-providers");
@@ -48,7 +91,7 @@ describe("Forma ESLint matrix", () => {
     const app = rules.find(
       (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
     );
-    const appAllow = JSON.stringify(app?.allow ?? null);
+    const appAllow = allowTypes(app);
     expect(appAllow).not.toContain("providers");
   });
 
