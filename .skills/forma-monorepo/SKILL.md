@@ -9,7 +9,7 @@ description: Routes ambiguous work in the Forma TypeScript monorepo to the right
 
 Canonical contract (package kinds, entrypoints, ESLint matrix, composition):
 
-[architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md)
+[standards/forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md)
 
 Do not duplicate that document in chat—summarize and link when needed.
 
@@ -39,24 +39,24 @@ Do not duplicate that document in chat—summarize and link when needed.
 - Infrastructure MUST NOT import `@core/*`.
 - Adapter joins one core + its vendor stack; apps consume UI and composition roots.
 - Scaffold via `@xndrjs/plop-os` (`pnpm plop` / `plop:run`); keep barrels with `pnpm plop:sync`.
-- Import matrix home: `eslint-rules/boundaries/` (root `eslint.config.js` is the jiti loader).
+- Import matrix home: `tools/eslint-rules/boundaries/` (root `eslint.config.js` is the jiti loader).
 
 ## Workspace tooling (do not edit by default)
 
 **Strongly discouraged** without explicit user approval:
 
 - Root or package `tsconfig.json` / `tsconfig.*.json`
-- `eslint.config.js`, [`eslint-rules/boundaries/`](../../eslint-rules/boundaries/), Prettier config, Vitest config, `package.json` workspace scripts
+- `eslint.config.js`, [`tools/eslint-rules/boundaries/`](../../tools/eslint-rules/boundaries/), Prettier config, Vitest config, `package.json` workspace scripts
 - Path aliases or boundary rules changed to silence a single error
 
 **If a change seems necessary:** stop implementation, explain **why** to the user, and wait for approval.
 
 **Never** loosen tooling to ship faster. Fix the code or agree on an architecture change first.
 
-Routine exception (skill `forma-boundaries`): add a new framework/SDK name to `coreRestrictedImportPatterns` in `eslint-rules/boundaries/restricted-imports.ts` when the workspace adopts that dependency.
+Routine exception (skill `forma-boundaries`): add a new framework/SDK name to `coreRestrictedImportPatterns` in `tools/eslint-rules/boundaries/restricted-imports.ts` when the workspace adopts that dependency.
 
 ## Human docs
 
 - [README.md](../../README.md) — scripts, First 15 minutes, layout
 - [AGENTS.md](../../AGENTS.md) — skill map + symlink edit path
-- [eslint-rules/boundaries/](../../eslint-rules/boundaries/) — Forma ESLint import matrix
+- [tools/eslint-rules/boundaries/](../../tools/eslint-rules/boundaries/) — Forma ESLint import matrix

@@ -3,7 +3,7 @@
   "files": [],
   "references": [
     // plop-os-sync start root-tsconfig-refs
-    { "path": "./eslint-rules" }
+    { "path": "./tools/eslint-rules" }
     // plop-os-sync end root-tsconfig-refs
   ]
 }

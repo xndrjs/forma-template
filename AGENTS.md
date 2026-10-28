@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Read [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md) for package kinds, Forma entrypoints, ESLint matrix, and composition.
+Read [standards/forma-oriented-monorepo.md](./standards/forma-oriented-monorepo.md) for package kinds, Forma entrypoints, ESLint matrix, and composition.
 
 Route ambiguous work via the architecture router skill `forma-monorepo` under `.skills/`.
 
@@ -42,7 +42,7 @@ Full router table: skill `forma-monorepo`.
 | `pnpm plop:run <gen> --input '…'` | Non-interactive scaffold                 |
 | `pnpm plop:sync`                  | Rewrite barrel / `tsconfig` sync regions |
 
-Generators live in [`plop/plopfile.ts`](./plop/plopfile.ts) (root [`plopfile.mjs`](./plopfile.mjs) is a thin TS loader); templates under [`plop/templates/`](./plop/templates/). Artifact flows pick package via Discovery, then nested dest under the layer, then kebab name.
+Generators live in [`tools/plop/plopfile.ts`](./tools/plop/plopfile.ts) (root [`plopfile.mjs`](./plopfile.mjs) is a thin TS loader); templates under [`tools/plop/templates/`](./tools/plop/templates/). Artifact flows pick package via Discovery, then nested dest under the layer, then kebab name.
 
 Domain kits (`@xndrjs/domain-zod`) live in **core** only — order **primitive → shape → proof**, then **capabilities** / services in core `operations/` only. Infra: plain Zod `*.schema.ts` under `schemas/`. Adapter: `*.mapper.ts` under `mappers/` (no `models/`, no `operations/`). Intents: `*.intent.ts` (+ optional sibling `*.provider.ts`). Errors: `*.error.ts` under `errors/` on any boundary.
 

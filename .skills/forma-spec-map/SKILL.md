@@ -70,7 +70,7 @@ specs/
 - Under `specs/`: only `SPEC-MAP.md` at root; per slice only `SPEC.md` + `DESIGN.md`.
 - Mermaid diagrams live **inside** per-spec `DESIGN.md`, not in the map.
 
-Canonical architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md).
+Canonical architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md).
 
 ---
 

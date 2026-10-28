@@ -197,7 +197,7 @@ export function registerDiscovery(plopOs: PlopOs) {
 
   const eslintRulesTsconfig = plopOs.addDiscoveryRule({
     name: "eslint-rules-tsconfig",
-    pattern: /^eslint-rules\/tsconfig\.json$/,
+    pattern: /^tools\/eslint-rules\/tsconfig\.json$/,
     label: () => "eslint-rules",
     filter: fileOnly,
   });

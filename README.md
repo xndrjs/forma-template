@@ -2,13 +2,13 @@
 
 Empty TypeScript monorepo template organized around **Forma** boundaries, intents, providers, and composition. Scaffold packages/apps with `@xndrjs/plop-os` (`pnpm plop`).
 
-Canonical architecture: [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md).
+Canonical architecture: [standards/forma-oriented-monorepo.md](./standards/forma-oriented-monorepo.md).
 
 ```txt
 apps/            # deployable apps (composition roots)
 packages/        # @core/* · @infrastructure/* · @adapter/* · @ui/*
-plop/            # generators + templates
-architecture/    # Forma bible + spec workflow
+tools/plop/      # generators + templates
+standards/       # Forma bible + spec workflow
 specs/           # feature SPEC.md / DESIGN.md
 ```
 
@@ -147,7 +147,7 @@ packages/core-billing/intents/load-user.intent.ts
 
 ### Scaffolding (`@xndrjs/plop-os`)
 
-[`plop/plopfile.ts`](./plop/plopfile.ts) (root [`plopfile.mjs`](./plopfile.mjs) loader) + [`plop/templates/`](./plop/templates/).
+[`tools/plop/plopfile.ts`](./tools/plop/plopfile.ts) (root [`plopfile.mjs`](./plopfile.mjs) loader) + [`tools/plop/templates/`](./tools/plop/templates/).
 
 | Generator family | Examples                                                                                                                |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -158,15 +158,15 @@ Artifact prompts: Discovery list package → nested dest under the layer (option
 
 ## ESLint in the monorepo
 
-Root [`eslint.config.js`](./eslint.config.js) is a thin loader (base lint + jiti). The Forma import matrix lives in [`eslint-rules/boundaries/`](./eslint-rules/boundaries/) (`boundaries`, `no-restricted-imports`, `check-file`).
+Root [`eslint.config.js`](./eslint.config.js) is a thin loader (base lint + jiti). The Forma import matrix lives in [`tools/eslint-rules/boundaries/`](./tools/eslint-rules/boundaries/) (`boundaries`, `no-restricted-imports`, `check-file`).
 
 A single central configuration keeps package-kind boundaries, entrypoint bans, and shared conventions consistent. Physically separate configurations per app or package should be avoided unless a package becomes truly autonomous.
 
 ## Architecture documentation
 
-Full rules: [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md).
+Full rules: [standards/forma-oriented-monorepo.md](./standards/forma-oriented-monorepo.md).
 
-Spec workflow: [architecture/specification-driven-feature-workflow.md](./architecture/specification-driven-feature-workflow.md).
+Spec workflow: [standards/specification-driven-feature-workflow.md](./standards/specification-driven-feature-workflow.md).
 
 ### Agent skills
 
@@ -188,7 +188,7 @@ Task-specific guides live in [`.skills/`](./.skills/) (canonical). Symlinks expo
 
 ## Architectural boundaries
 
-Boundaries are enforced through `eslint-plugin-boundaries` and `no-restricted-imports` in [`eslint-rules/boundaries/`](./eslint-rules/boundaries/). Full matrix: [architecture/forma-oriented-monorepo.md](./architecture/forma-oriented-monorepo.md).
+Boundaries are enforced through `eslint-plugin-boundaries` and `no-restricted-imports` in [`tools/eslint-rules/boundaries/`](./tools/eslint-rules/boundaries/). Full matrix: [standards/forma-oriented-monorepo.md](./standards/forma-oriented-monorepo.md).
 
 Principles:
 

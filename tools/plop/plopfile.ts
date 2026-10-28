@@ -9,8 +9,8 @@ import { registerPackageGenerators } from "./lib/generators-packages";
 import { camelName, pascalName } from "./lib/names";
 import { registerSync } from "./lib/sync";
 
-/** Repo root (parent of `plop/`). */
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+/** Repo root (parent of `tools/plop/`). */
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 export const plopOs = createPlopOs({
   roots: [root],
@@ -20,7 +20,7 @@ export const plopOs = createPlopOs({
     ".git",
     "coverage",
     ".tsbuild",
-    "plop/templates",
+    "tools/plop/templates",
   ],
 });
 

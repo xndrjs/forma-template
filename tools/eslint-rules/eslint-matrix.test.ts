@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  "..",
+  "../..",
 );
 
 async function lintAt(filePath: string, code: string) {

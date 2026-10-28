@@ -1,6 +1,6 @@
 ---
 name: forma-boundaries
-description: Troubleshoots eslint-plugin-boundaries and no-restricted-imports violations in the Forma monorepo, or adds a newly installed framework/SDK package name to the core import-ban list in eslint-rules/boundaries. Use when fixing boundary or forbidden-import errors in packages/ or apps/—not for general eslint.config.js refactors.
+description: Troubleshoots eslint-plugin-boundaries and no-restricted-imports violations in the Forma monorepo, or adds a newly installed framework/SDK package name to the core import-ban list in tools/eslint-rules/boundaries. Use when fixing boundary or forbidden-import errors in packages/ or apps/—not for general eslint.config.js refactors.
 ---
 
 # Forma boundaries (ESLint)
@@ -19,21 +19,21 @@ See also router skill `forma-monorepo` — _Workspace tooling_.
 
 Full package-kind matrix and hard bans:
 
-[architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _ESLint import matrix_, _Hard bans_, _Entrypoints_.
+[standards/forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _ESLint import matrix_, _Hard bans_, _Entrypoints_.
 
-**Matrix implementation:** [`eslint-rules/boundaries/`](../../eslint-rules/boundaries/) (`layers.ts`, `elements.ts`, `dependencies.ts`, `restricted-imports.ts`, `index.ts`). Root `eslint.config.js` only loads the factory via jiti.
+**Matrix implementation:** [`tools/eslint-rules/boundaries/`](../../tools/eslint-rules/boundaries/) (`layers.ts`, `elements.ts`, `dependencies.ts`, `restricted-imports.ts`, `index.ts`). Root `eslint.config.js` only loads the factory via jiti.
 
 ## Do not edit `eslint.config.js` (default)
 
 **Fix the code** (move import, use public entrypoint, respect package kind) or discuss an architecture change first.
 
-Read `eslint-rules/boundaries/` (and the thin root loader) to **understand** why a rule fired—do not treat either as a routine edit surface.
+Read `tools/eslint-rules/boundaries/` (and the thin root loader) to **understand** why a rule fired—do not treat either as a routine edit surface.
 
 ## The one allowed ban-list change
 
 When the workspace adds a **framework** (e.g. React, Next) or **external SDK** that must **never** be imported from `@core/*`, extend the core-package ban list:
 
-**File:** [`eslint-rules/boundaries/restricted-imports.ts`](../../eslint-rules/boundaries/restricted-imports.ts)  
+**File:** [`tools/eslint-rules/boundaries/restricted-imports.ts`](../../tools/eslint-rules/boundaries/restricted-imports.ts)  
 **Export:** `coreRestrictedImportPatterns` (framework/SDK `patterns` group).
 
 **How:** add the **npm package name** to the brace group (same style as existing entries).
@@ -96,4 +96,4 @@ Typical allowed names under boundary packages:
 
 ## If architecture truly changes
 
-New package **kind**, new entrypoint, or new dependency matrix → update the [Forma bible](../../architecture/forma-oriented-monorepo.md) **first**, then `eslint-rules/boundaries/` in a dedicated change with team agreement—not as a drive-by lint fix.
+New package **kind**, new entrypoint, or new dependency matrix → update the [Forma bible](../../standards/forma-oriented-monorepo.md) **first**, then `tools/eslint-rules/boundaries/` in a dedicated change with team agreement—not as a drive-by lint fix.

@@ -9,7 +9,7 @@ description: Implements or reviews boundary kits and internal operations—*.sha
 
 Entrypoints, kit rules by package kind, core-only `operations/`:
 
-[architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Models / schemas / mappers by package kind_, _Capabilities / services_.
+[standards/forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _Models / schemas / mappers by package kind_, _Capabilities / services_.
 
 Author **core** kits in order **primitive → shape → proof**, then operations / errors. Prefer `pnpm plop` (`shape`, `primitive`, `proof`, `errors`, `mapper`, …) then `pnpm plop:sync`.
 

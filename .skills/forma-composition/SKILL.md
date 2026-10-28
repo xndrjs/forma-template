@@ -18,7 +18,7 @@ description: Creates or extends Forma composition roots under apps/*/composition
 - Do **not** split into per-feature composition files.
 - Runtime is always explicit (`runtime: "server" | "client"`); no isomorphic roots.
 
-Architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Composition_.
+Architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _Composition_.
 
 ## Role
 

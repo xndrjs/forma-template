@@ -15,7 +15,7 @@ An **adapter** is the only package kind that joins a feature (`@core/<feature>`)
 | Infrastructure | Feature-agnostic, vendor-specific |
 | Adapter        | Feature + explicit vendor stack   |
 
-Architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Adapter naming_, _Infrastructure packaging_, _Fetch raw vs materialize_.
+Architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _Adapter naming_, _Infrastructure packaging_, _Fetch raw vs materialize_.
 
 ## Naming
 

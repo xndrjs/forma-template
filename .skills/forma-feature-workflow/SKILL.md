@@ -11,8 +11,8 @@ A user story touches **models**, **operations**, **intents/providers**, **infras
 
 For a single artifact (only a shape, only ESLint), use the specialized skill instead—router `forma-monorepo`.
 
-Canonical architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md)  
-Lean docs: [specification-driven-feature-workflow.md](../../architecture/specification-driven-feature-workflow.md)
+Canonical architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md)  
+Lean docs: [specification-driven-feature-workflow.md](../../standards/specification-driven-feature-workflow.md)
 
 ---
 

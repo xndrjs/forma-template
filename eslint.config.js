@@ -5,12 +5,12 @@ import markdown from "@eslint/markdown";
 import { defineConfig } from "eslint/config";
 import { createJiti } from "jiti";
 import tseslint from "typescript-eslint";
-import plugin from "./eslint-rules/index.mjs";
+import plugin from "./tools/eslint-rules/index.mjs";
 
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const jiti = createJiti(import.meta.url);
 const { createFormaBoundariesConfig } = await jiti.import(
-  "./eslint-rules/boundaries/index.ts",
+  "./tools/eslint-rules/boundaries/index.ts",
 );
 
 const scaffoldPackageSources = [
@@ -29,7 +29,7 @@ const scaffoldPackageMarkdown = [
 const jsTsFiles = [
   "apps/**/*.{js,cjs,mjs,ts,tsx}",
   "packages/**/*.{js,cjs,mjs,ts,tsx}",
-  "plop/**/*.{js,cjs,mjs,ts}",
+  "tools/plop/**/*.{js,cjs,mjs,ts}",
   "plopfile.mjs",
   "eslint.config.js",
   "lint-staged.config.js",
@@ -47,7 +47,7 @@ export default defineConfig(
       ".next/**",
       ".turbo/**",
       ".nx/**",
-      "eslint-rules/**",
+      "tools/eslint-rules/**",
     ],
   },
   {

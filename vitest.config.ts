@@ -11,7 +11,7 @@ export default defineConfig({
           include: [
             "apps/**/*.{test,spec}.ts",
             "packages/**/*.{test,spec}.ts",
-            "eslint-rules/**/*.{test,spec}.ts",
+            "tools/eslint-rules/**/*.{test,spec}.ts",
           ],
         },
       },

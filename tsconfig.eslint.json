@@ -3,7 +3,7 @@
   "include": [
     "apps/**/*",
     "packages/**/*",
-    "eslint-rules/**/*",
+    "tools/eslint-rules/**/*",
     "*.ts",
     "*.js"
   ],

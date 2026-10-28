@@ -30,7 +30,7 @@
 - Cross-core imports forbidden by default.
 - `operations/` is **core-only** and has **no** public export — expose cross-boundary behavior via an intent (+ provide).
 
-**Scaffolding:** `@xndrjs/plop-os` via `plop/plopfile.ts` (root `plopfile.mjs` loader) — `pnpm plop` / `plop:run` / `plop:sync`.
+**Scaffolding:** `@xndrjs/plop-os` via `tools/plop/plopfile.ts` (root `plopfile.mjs` loader) — `pnpm plop` / `plop:run` / `plop:sync`.
 
 ---
 
@@ -183,7 +183,7 @@ Live only under core `operations/`. If they must be reachable across boundaries 
 | **apps (non-composition)** | models / intents / errors (not operations); not infra; not `/providers`   | no                                                 | `/intents`, `/errors` only      | yes     | no                      |
 | **apps/composition**       | models / intents / errors + `/providers` (not operations)                 | yes (`/schemas` … + `/providers`)                  | yes (`/mappers` … + `/providers`) | yes   | yes                     |
 
-Implemented in [`eslint-rules/boundaries/`](../eslint-rules/boundaries/) (`boundaries` + `no-restricted-imports` + `check-file`); root `eslint.config.js` loads it via jiti. Cross-core imports: forbidden by default. `core-operations` is importable only from same-feature `core-intents` / `core-operations` — never from apps or composition.
+Implemented in [`tools/eslint-rules/boundaries/`](../tools/eslint-rules/boundaries/) (`boundaries` + `no-restricted-imports` + `check-file`); root `eslint.config.js` loads it via jiti. Cross-core imports: forbidden by default. `core-operations` is importable only from same-feature `core-intents` / `core-operations` — never from apps or composition.
 
 ---
 
@@ -201,7 +201,7 @@ packages/
   adapter-<feature>-<vendor>/
   ui-<name>/              # @ui/<name> — apps only
 
-plop/                     # generators + templates (@xndrjs/plop-os)
+tools/plop/               # generators + templates (@xndrjs/plop-os)
 specs/                    # feature specs — not imported by code
   <feature>/
     SPEC.md

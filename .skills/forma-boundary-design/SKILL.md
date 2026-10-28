@@ -17,7 +17,7 @@ description: Guides naming and scope of Forma boundary packages—@core/*, @infr
 
 **1 Forma boundary = 1 package** (core / infra / adapter).
 
-Full rules: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md).
+Full rules: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md).
 
 ## Core: new package vs extend
 

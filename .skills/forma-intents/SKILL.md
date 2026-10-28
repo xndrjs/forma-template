@@ -16,7 +16,7 @@ description: Implements or reviews Forma *.intent.ts contracts and optional *.pr
 
 Role-oriented names (domain verbs), not vendor product names on **core** intents. Adapter intents may name the stack when they are the satisfier (`LoadPageFromContentful`).
 
-Architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Intent files_, _Entrypoints_.
+Architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _Intent files_, _Entrypoints_.
 
 ## Files & barrels
 
