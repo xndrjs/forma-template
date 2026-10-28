@@ -38,8 +38,8 @@ export function registerInfrastructureBoundary(plop: NodePlopAPI): void {
         },
         {
           type: "add",
-          path: `${base}/models/index.ts`,
-          templateFile: T("boundary/models-index.ts.hbs"),
+          path: `${base}/schemas/index.ts`,
+          templateFile: T("boundary/schemas-index.ts.hbs"),
           ...f,
         },
         {

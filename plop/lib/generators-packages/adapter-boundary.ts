@@ -76,8 +76,8 @@ export function registerAdapterBoundary(
         },
         {
           type: "add",
-          path: `${base}/models/index.ts`,
-          templateFile: T("boundary/models-index.ts.hbs"),
+          path: `${base}/mappers/index.ts`,
+          templateFile: T("boundary/mappers-index.ts.hbs"),
           ...f,
         },
         {
