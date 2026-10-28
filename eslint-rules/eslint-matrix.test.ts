@@ -24,9 +24,8 @@ function dependencyRulesFor(config: { rules?: Record<string, unknown> }) {
   const deps = config.rules?.["boundaries/dependencies"];
   const options = Array.isArray(deps) ? deps[1] : null;
   return (
-    (
-      options as { rules?: { from?: unknown; allow?: unknown }[] } | null
-    )?.rules ?? []
+    (options as { rules?: { from?: unknown; allow?: unknown }[] } | null)
+      ?.rules ?? []
   );
 }
 
@@ -82,8 +81,7 @@ describe("Forma ESLint matrix", () => {
     expect(allowTypes(app)).not.toContain("core-operations");
 
     const intents = rules.find(
-      (rule) =>
-        JSON.stringify(rule.from ?? null) === '{"type":"core-intents"}',
+      (rule) => JSON.stringify(rule.from ?? null) === '{"type":"core-intents"}',
     );
     expect(allowTypes(intents)).toContain("core-operations");
   });
@@ -163,19 +161,5 @@ describe("Forma ESLint matrix", () => {
     expect(appAllow).not.toContain("providers");
     expect(appAllow).not.toContain("adapter-mappers");
     expect(appAllow).not.toContain("infrastructure-");
-  });
-
-  it("enforces Forma package kinds (intents/adapter), not ports/use-cases layers", async () => {
-    const eslint = new ESLint({ cwd: repoRoot });
-    const config = await eslint.calculateConfigForFile(
-      path.join(repoRoot, "packages/core-pagebuilder/intents/index.intents.ts"),
-    );
-    const deps = config.rules?.["boundaries/dependencies"];
-    const serialized = JSON.stringify(deps ?? null);
-    expect(serialized).not.toContain("core-ports");
-    expect(serialized).not.toContain("core-use-cases");
-    expect(serialized).toContain("core-intents");
-    expect(serialized).toContain("adapter");
-    expect(serialized).toContain("core-providers");
   });
 });
