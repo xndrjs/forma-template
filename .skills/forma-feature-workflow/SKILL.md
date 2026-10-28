@@ -91,8 +91,8 @@ Optional Mermaid `sequenceDiagram` when bind/provide paths are non-obvious.
 | Custom behavior on one kit           | `*.capabilities.ts`              |
 | Cross-kit pure rules                 | `*.service.ts`                   |
 | Cross-boundary / app-facing behavior | intent (± provide)               |
-| Vendor raw access                    | infrastructure intent / provider |
-| Map raw → core / satisfy unrealized  | adapter intent / provider        |
+| Vendor raw access                    | infra `schemas/` + intent / provider |
+| Map raw → core / satisfy unrealized  | adapter `mappers/` + intent / provider |
 | Wire surface                         | composition `compose` / `bind`   |
 
 Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition)—not ports, use cases, loaders, or repositories.
@@ -101,9 +101,9 @@ Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition
 
 ---
 
-## Phase 2 — Boundary kits (`models/` + errors)
+## Phase 2 — Boundary kits (core `models/` + errors)
 
-Implement DESIGN kits in order: **primitive → shape → proof**; add errors under `errors/` (any boundary). Capabilities/services only in core `operations/`.
+Implement DESIGN **core** kits in order: **primitive → shape → proof**; add errors under `errors/` (any boundary). Capabilities/services only in core `operations/`.
 
 1. Add kits via `pnpm plop` (`shape` / `primitive` / `proof`) or by hand; fill Zod / `refineType`; `pnpm plop:sync`.
 2. Colocate tests when non-trivial.
@@ -137,8 +137,8 @@ Implement DESIGN intents on the owning boundaries.
 
 ## Phase 5 — Infrastructure + adapter
 
-1. Infrastructure: raw shapes / fetch intents (no `@core/*`).
-2. Adapter stack: map raw → core; realize unrealized core intents — skill `forma-adapter-stacks`.
+1. Infrastructure: plain Zod under `schemas/` (`*.schema.ts` via shape→infra) + fetch intents (no `@core/*`).
+2. Adapter stack: `mappers/*.mapper.ts` (map raw → core) + realize unrealized core intents — skill `forma-adapter-stacks` / `forma-boundary-models`.
 
 **Gate:** mapper/provider tests as needed · no SDK types leaking into `@core/*` · **stop**
 

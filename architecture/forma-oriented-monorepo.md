@@ -9,13 +9,13 @@
 
 ## Quick reference (for agents)
 
-| Package kind   | Folder                                    | npm name                         | Public entrypoints / import rules                                |
-| -------------- | ----------------------------------------- | -------------------------------- | ---------------------------------------------------------------- |
-| Core           | `packages/core-<feature>/`                | `@core/<feature>`                | `./models`, `./intents`, `./providers`, `./errors` only          |
-| Infrastructure | `packages/infrastructure-<vendor>/`       | `@infrastructure/<vendor>`       | Same entrypoint shape; **feature-agnostic**, vendor-specific     |
-| Adapter        | `packages/adapter-<feature>-<vendor>[…]/` | `@adapter/<feature>-<vendor>[…]` | Same entrypoints; depends on one core + its vendor stack         |
-| UI             | `packages/ui-<name>/`                     | `@ui/<name>`                     | Root export; **only `apps/*` may import** (not a Forma boundary) |
-| App            | `apps/<app>/`                             | (app package)                    | Hosts `composition/`; runtime assembly only                      |
+| Package kind   | Folder                                    | npm name                         | Public entrypoints / import rules                                                                 |
+| -------------- | ----------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Core           | `packages/core-<feature>/`                | `@core/<feature>`                | `./models`, `./intents`, `./providers`, `./errors` only                                           |
+| Infrastructure | `packages/infrastructure-<vendor>/`       | `@infrastructure/<vendor>`       | `./schemas`, `./intents`, `./providers`, `./errors`; **feature-agnostic**, vendor-specific        |
+| Adapter        | `packages/adapter-<feature>-<vendor>[…]/` | `@adapter/<feature>-<vendor>[…]` | `./mappers`, `./intents`, `./providers`, `./errors`; depends on one core + its vendor stack        |
+| UI             | `packages/ui-<name>/`                     | `@ui/<name>`                     | Root export; **only `apps/*` may import** (not a Forma boundary)                                  |
+| App            | `apps/<app>/`                             | (app package)                    | Hosts `composition/`; runtime assembly only                                                       |
 
 **Boundary rule:** for core, infrastructure, and adapter — **1 Forma boundary = 1 package**.
 
@@ -23,8 +23,10 @@
 
 - Core MUST NOT import `@infrastructure/*`, `@adapter/*`, `@ui/*`, frameworks/SDKs, or `apps/*`.
 - Infrastructure MUST NOT import `@core/*`, `@adapter/*`, or `@ui/*`.
-- Adapter MAY import `@core/*/models|intents|errors` and its stack’s `@infrastructure/*`; MUST NOT import `/providers` except via composition.
+- Adapter MAY import `@core/*/models|intents|errors` and its stack’s `@infrastructure/*/schemas|intents|errors`; MUST NOT import `/providers` except via composition.
 - `/providers` is importable **only** from `apps/*/composition/**`.
+- `/mappers` is importable from the **same adapter** and `apps/*/composition/**` — **not** non-composition apps or other package kinds.
+- `/schemas` is importable from the **same-vendor** infra package, adapters of that stack, and composition — apps (non-composition) still must not import infra.
 - Cross-core imports forbidden by default.
 - `operations/` is **core-only** and has **no** public export — expose cross-boundary behavior via an intent (+ provide).
 
@@ -87,6 +89,14 @@ Not separate package kinds or generators — narrative roles on intents:
 
 The same raw fetch can feed multiple adapters (or multiple materializers) projecting into different `@core/*` read models.
 
+```mermaid
+flowchart LR
+  infraSchemas["infra /schemas"] --> adapterMappers["adapter /mappers"]
+  coreModels["core /models"] --> adapterMappers
+  adapterMappers --> adapterProviders["adapter providers"]
+  adapterProviders --> composition["app-composition"]
+```
+
 ---
 
 ## Target package layout
@@ -103,28 +113,41 @@ The same raw fetch can feed multiple adapters (or multiple materializers) projec
   package.json         # exports: ./models, ./intents, ./providers, ./errors
 ```
 
-**Adapter / infrastructure** (`packages/adapter-…/`, `packages/infrastructure-…/`):
+**Infrastructure** (`packages/infrastructure-<vendor>/`):
 
 ```text
-  models/              # plain Zod shapes only (no domain-zod kits)
+  schemas/             # plain Zod *.schema.ts (vendor/raw structural validation)
   intents/
     index.intents.ts
     index.providers.ts
   errors/
-  package.json         # same public exports — no operations/
+  package.json         # exports: ./schemas, ./intents, ./providers, ./errors — no operations/
 ```
 
-`operations/` is **core-only**. Adapter and infrastructure scaffolds omit it.
+**Adapter** (`packages/adapter-<feature>-<vendors…>/`):
+
+```text
+  mappers/             # *.mapper.ts — project infra raw → core models (no models/)
+  intents/
+    index.intents.ts
+    index.providers.ts
+  errors/
+  package.json         # exports: ./mappers, ./intents, ./providers, ./errors — no operations/
+```
+
+`operations/` is **core-only**. Adapter and infrastructure scaffolds omit it. Adapters have **no** `models/` — mapping lives in `mappers/`.
 
 ### Entrypoints
 
-| Export        | Who may import                                                                                                                   |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `/models`     | Same package; `adapter-*` → `@core/*/models`; composition/apps as needed. **Not** `infrastructure-*` → `@core/*`                 |
-| `/intents`    | Other boundaries that need contracts; adapters import core intents; composition may import intents                               |
-| `/providers`  | **Only** `apps/*/composition/**`                                                                                                 |
-| `/errors`     | Same rules as models for cross-package use                                                                                       |
-| `/operations` | **None** (no public export). Cross-boundary or app-facing behavior → expose an **intent** whose provide calls into `operations/` |
+| Export        | Who may import                                                                                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/models`     | Core only. Same package; `adapter-*` → `@core/*/models`; composition/apps as needed. **Not** `infrastructure-*` → `@core/*`                                 |
+| `/schemas`    | Same-vendor infra; adapters of that stack; composition. **Not** non-composition apps (apps still must not import infra)                                     |
+| `/mappers`    | Same adapter + `apps/*/composition/**` only. **Not** non-composition apps; **not** other package kinds                                                      |
+| `/intents`    | Other boundaries that need contracts; adapters import core intents; composition may import intents                                                          |
+| `/providers`  | **Only** `apps/*/composition/**`                                                                                                                            |
+| `/errors`     | Same rules as the kind’s primary data entrypoint for cross-package use                                                                                      |
+| `/operations` | **None** (no public export). Cross-boundary or app-facing behavior → expose an **intent** whose provide calls into `operations/`                            |
 
 ### Intent files
 
@@ -133,15 +156,15 @@ The same raw fetch can feed multiple adapters (or multiple materializers) projec
 - Unrealized = contract only; realized = contract + provider file.
 - Barrels: `index.intents.ts` exports all `*.intent.ts`; `index.providers.ts` exports only `*.provider.ts` (kept by `pnpm plop:sync`).
 
-### Models by package kind
+### Models / schemas / mappers by package kind
 
-| Kind               | Models                                                                                                                                   |
+| Kind               | Location / files                                                                                                                         |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Core**           | Domain kits (`@xndrjs/domain` / `domain-zod`): primitive → shape → proof; capabilities/services in `operations/`; errors under `errors/` |
-| **Adapter**        | **Plain Zod** shapes for DTOs / materialization helpers; mappers into **core** kits. **No** `@xndrjs/domain` / `domain-zod`              |
-| **Infrastructure** | **Plain Zod** shapes only — vendor/raw structural validation. **No** `@xndrjs/domain` (invariants / lifecycle belong in core)            |
+| **Core**           | `models/` — domain kits (`@xndrjs/domain` / `domain-zod`): primitive → shape → proof; capabilities/services in `operations/`; errors under `errors/` |
+| **Infrastructure** | `schemas/` — plain Zod `*.schema.ts` only — vendor/raw structural validation. **No** `@xndrjs/domain` (invariants / lifecycle belong in core)       |
+| **Adapter**        | `mappers/` — `*.mapper.ts` projecting infra raw into **core** kits. **No** `models/`; **no** `@xndrjs/domain` / `domain-zod`                        |
 
-Do not put business rules in infrastructure models.
+Do not put business rules in infrastructure schemas.
 
 ### Capabilities / services
 
@@ -151,14 +174,14 @@ Live only under core `operations/`. If they must be reachable across boundaries 
 
 ## ESLint import matrix
 
-| From ↓ / To →              | core                                                                      | infra                       | adapter            | ui      | `/providers`            |
-| -------------------------- | ------------------------------------------------------------------------- | --------------------------- | ------------------ | ------- | ----------------------- |
-| **core**                   | same feature / own entrypoints only                                       | no                          | no                 | no      | —                       |
-| **infra**                  | no `@core/*`                                                              | same vendor ok              | no                 | no      | —                       |
-| **adapter**                | `/models`, `/intents`, `/errors` of its core                              | infra packages of its stack | no (default)       | no      | no (except composition) |
-| **ui**                     | no                                                                        | no                          | no                 | ui only | —                       |
-| **apps (non-composition)** | models / intents / errors (not operations); not infra; not `/providers` | no                          | no `/providers`    | yes     | no                      |
-| **apps/composition**       | models / intents / errors + `/providers` (not operations)                 | yes + `/providers`          | yes + `/providers` | yes     | yes                     |
+| From ↓ / To →              | core                                                                      | infra                                              | adapter                         | ui      | `/providers`            |
+| -------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------- | ------------------------------- | ------- | ----------------------- |
+| **core**                   | same feature / own entrypoints only                                       | no                                                 | no                              | no      | —                       |
+| **infra**                  | no `@core/*`                                                              | same vendor ok (`/schemas`, intents, errors, …)    | no                              | no      | —                       |
+| **adapter**                | `/models`, `/intents`, `/errors` of its core                              | stack `/schemas`, `/intents`, `/errors`            | same stack (incl. `/mappers`)   | no      | no (except composition) |
+| **ui**                     | no                                                                        | no                                                 | no                              | ui only | —                       |
+| **apps (non-composition)** | models / intents / errors (not operations); not infra; not `/providers`   | no                                                 | `/intents`, `/errors` only      | yes     | no                      |
+| **apps/composition**       | models / intents / errors + `/providers` (not operations)                 | yes (`/schemas` … + `/providers`)                  | yes (`/mappers` … + `/providers`) | yes   | yes                     |
 
 Implemented in [`eslint-rules/boundaries/`](../eslint-rules/boundaries/) (`boundaries` + `no-restricted-imports` + `check-file`); root `eslint.config.js` loads it via jiti. Cross-core imports: forbidden by default. `core-operations` is importable only from same-feature `core-intents` / `core-operations` — never from apps or composition.
 
@@ -209,14 +232,14 @@ apps/<app>/
 
 Call sites (routes, handlers, UI) import the root from composition — not providers or infrastructure factories directly.
 
-| Actor                   | Allowed imports                                                                                                                                              |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `apps/*/composition/**` | `@core/*/models\|intents\|errors\|providers` (not operations), `@infrastructure/*` (incl. `/providers`), `@adapter/*` (incl. `/providers`), `@ui/*`, app code |
-| Rest of app             | `@core/*/models\|intents\|errors`, `@ui/*`, composition roots; **not** `/providers`, **not** infrastructure, **not** operations                              |
-| `@core/*`               | MUST NOT import apps, infrastructure, adapter, or UI                                                                           |
-| `@infrastructure/*`     | MUST NOT import `@core/*` or orchestrate app composition                                                                       |
-| `@adapter/*`            | Core models/intents/errors + its infra stack                                                                                   |
-| `@ui/*`                 | Consumed from apps only (including composition)                                                                                |
+| Actor                   | Allowed imports                                                                                                                                                                                      |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/*/composition/**` | `@core/*/models\|intents\|errors\|providers` (not operations), `@infrastructure/*` (incl. `/schemas` + `/providers`), `@adapter/*` (incl. `/mappers` + `/providers`), `@ui/*`, app code               |
+| Rest of app             | `@core/*/models\|intents\|errors`, `@adapter/*/intents\|errors`, `@ui/*`, composition roots; **not** `/providers`, **not** `/mappers`, **not** infrastructure, **not** operations                      |
+| `@core/*`               | MUST NOT import apps, infrastructure, adapter, or UI                                                                                                                                                 |
+| `@infrastructure/*`     | MUST NOT import `@core/*` or orchestrate app composition                                                                                                                                             |
+| `@adapter/*`            | Core models/intents/errors + its infra stack (`/schemas`, `/intents`, `/errors`)                                                                                                                     |
+| `@ui/*`                 | Consumed from apps only (including composition)                                                                                                                                                      |
 
 ---
 
@@ -238,16 +261,18 @@ Deployable or runnable targets: Next.js, React SPA, CLI, workers, API servers. A
 
 Root `tsconfig.json` is a solution config (`files: []` + `references`). The `references` array is a plop-os sync region (`root-tsconfig-refs`); run `pnpm plop:sync` after adding/removing packages or apps.
 
+App scaffolds use `app-tsconfig.json.hbs` (`composite` + `noEmit: true`). Boundary/UI packages use `package-tsconfig.json.hbs` (`emitDeclarationOnly`).
+
 ---
 
 ## Dependency notes
 
-| Package                         | Role                                                                     |
-| ------------------------------- | ------------------------------------------------------------------------ |
-| `@xndrjs/forma`                 | Composition runtime for apps (and types/helpers as needed in packages)   |
-| `@xndrjs/domain` / `domain-zod` | Domain kits in **core** only — not adapter or infrastructure             |
-| `@xndrjs/plop-os`               | Scaffold + sync (`pnpm plop` / `plop:run` / `plop:sync`)                 |
-| `zod`                           | Plain schemas in adapter / infrastructure `models/`; also via domain-zod |
+| Package                         | Role                                                                              |
+| ------------------------------- | --------------------------------------------------------------------------------- |
+| `@xndrjs/forma`                 | Composition runtime for apps (and types/helpers as needed in packages)            |
+| `@xndrjs/domain` / `domain-zod` | Domain kits in **core** only — not adapter or infrastructure                      |
+| `@xndrjs/plop-os`               | Scaffold + sync (`pnpm plop` / `plop:run` / `plop:sync`)                          |
+| `zod`                           | Plain schemas in infrastructure `schemas/`; also via domain-zod in core           |
 
 ---
 

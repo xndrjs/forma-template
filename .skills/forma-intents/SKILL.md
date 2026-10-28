@@ -37,7 +37,7 @@ Then `pnpm plop:sync`:
 | Domain / boundary types in core contracts           | SDK DTOs, React types, vendor JSON on **core** intents |
 | Keep contracts thin (load/save/notify-style)        | Stuff orchestration into the contract type alone       |
 | Realize with `*.provider.ts` on the owning boundary | Implement core contracts inside infrastructure         |
-| Import models/errors from the same boundary         | Import `/providers` outside composition                |
+| Import models/schemas/errors from the same boundary | Import `/providers` outside composition                |
 
 ## Examples (smoke)
 

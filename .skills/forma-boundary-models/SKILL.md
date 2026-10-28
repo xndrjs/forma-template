@@ -1,6 +1,6 @@
 ---
 name: forma-boundary-models
-description: Implements or reviews boundary kits and internal operations—*.shape.ts, *.primitive.ts, *.proof.ts, *.capabilities.ts, *.service.ts in @core (domain-zod); plain Zod shapes + errors/*.error.ts on adapter/infra. Use when adding kits, capabilities, domain services, or errors.
+description: Implements or reviews boundary kits and internal operations—*.shape.ts, *.primitive.ts, *.proof.ts, *.capabilities.ts, *.service.ts in @core (domain-zod); infra *.schema.ts under schemas/; adapter *.mapper.ts under mappers/; errors/*.error.ts on any boundary. Use when adding kits, schemas, mappers, capabilities, domain services, or errors.
 ---
 
 # Boundary models & operations
@@ -9,19 +9,20 @@ description: Implements or reviews boundary kits and internal operations—*.sha
 
 Entrypoints, kit rules by package kind, core-only `operations/`:
 
-[architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Models by package kind_, _Capabilities / services_.
+[architecture/forma-oriented-monorepo.md](../../architecture/forma-oriented-monorepo.md) — _Models / schemas / mappers by package kind_, _Capabilities / services_.
 
-Author **core** kits in order **primitive → shape → proof**, then operations / errors. Prefer `pnpm plop` (`shape`, `primitive`, `proof`, `errors`, …) then `pnpm plop:sync`.
+Author **core** kits in order **primitive → shape → proof**, then operations / errors. Prefer `pnpm plop` (`shape`, `primitive`, `proof`, `errors`, `mapper`, …) then `pnpm plop:sync`.
 
 ## What lives where
 
-| Artifact                  | Path                           | Responsibility                                                                        |
-| ------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
-| Primitive / Shape / Proof | core `models/`                 | domain-zod kits; proofs = extra guarantees on already-valid data                      |
-| Capabilities              | core `operations/*.capabilities.ts` | Custom methods on **one** kit beyond create/validation                           |
-| Domain service            | core `operations/*.service.ts` | Pure cross-model domain logic (same feature)                                          |
-| Error                     | `errors/*.error.ts`            | Typed errors on any boundary (core / adapter / infra); not under `models/`            |
-| Adapter / infra shape     | adapter or infra `models/`     | **Plain Zod** only — no `@xndrjs/domain` / `domain-zod`; **no** `operations/`         |
+| Artifact                  | Path                                | Responsibility                                                                        |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------- |
+| Primitive / Shape / Proof | core `models/`                      | domain-zod kits; proofs = extra guarantees on already-valid data                      |
+| Capabilities              | core `operations/*.capabilities.ts` | Custom methods on **one** kit beyond create/validation                                |
+| Domain service            | core `operations/*.service.ts`      | Pure cross-model domain logic (same feature)                                          |
+| Error                     | `errors/*.error.ts`                 | Typed errors on any boundary (core / adapter / infra); not under `models/`            |
+| Infra schema              | infra `schemas/*.schema.ts`         | **Plain Zod** vendor/raw structural validation — no `@xndrjs/domain` / `domain-zod`   |
+| Adapter mapper            | adapter `mappers/*.mapper.ts`       | Project infra raw → **core** kits; **no** adapter `models/`; no domain-zod            |
 
 Core `operations/` has **no** public export. Callers are **same-package only**: same-feature `intents/` / `operations/` (and their providers). **Never** import `operations/` from apps, composition, adapter, or infra — cross-boundary behavior → wrap in an intent (+ provider).
 
@@ -46,6 +47,8 @@ export type Page = ReturnType<(typeof PageShape)["create"]>;
 ```
 
 Primitives use `domain.primitive`; proofs use `domain.proof(…).refineType(…)`.
+
+Shape generator choices: **core** (domain-zod `*.shape.ts` under `models/`) or **infra** (plain Zod `*.schema.ts` under `schemas/`). Adapters are **not** on the shape generator — use the **mapper** artifact instead.
 
 ### When to use a proof
 
@@ -88,9 +91,13 @@ Cross-model pure functions in `*.service.ts`—no I/O, no DI by default.
 
 `errors/<kebab>.error.ts` on **any** boundary package (core / adapter / infra) — e.g. `errorCode` SCREAMING_SNAKE, message sentence case. Re-export via `errors/index.ts`. Scaffold with `pnpm plop` → `errors`.
 
-## Adapter / infrastructure models
+## Infrastructure schemas
 
-Plain Zod shapes only (DTOs, vendor/raw structural validation, materialization helpers). No domain kits, invariants, or `@xndrjs/domain` / `domain-zod` in `@adapter/*` or `@infrastructure/*` — project into **core** kits instead.
+Plain Zod `*.schema.ts` under `schemas/` (vendor/raw structural validation). Scaffold via `pnpm plop` → `shape` and choose **infra**. No domain kits, invariants, or `@xndrjs/domain` / `domain-zod` in `@infrastructure/*`.
+
+## Adapter mappers
+
+`mappers/*.mapper.ts` project infra raw into **core** kits. Scaffold with `pnpm plop` → `mapper` (picks adapter + core shape). Stub imports `import type { Xxx } from "@core/<feature>/models"` and exports `mapRawToXxx()`. **No** adapter `models/` folder; no domain-zod in adapters.
 
 ## Rules
 
@@ -102,6 +109,7 @@ Plain Zod shapes only (DTOs, vendor/raw structural validation, materialization h
 ## Anti-patterns
 
 - Using `*.model.ts` / ports / use-cases as kit homes.
+- Putting DTOs under adapter `models/` (use `mappers/` + infra `schemas/`).
 - Business rules only in adapters or React.
 - Capabilities that orchestrate I/O (belongs in intent provide / adapter).
 - Exporting `operations/` as a package entrypoint, importing it from apps/composition, or adding `operations/` on adapter/infra.
@@ -109,4 +117,5 @@ Plain Zod shapes only (DTOs, vendor/raw structural validation, materialization h
 ## Related
 
 - Intents: `forma-intents`
+- Adapter stacks: `forma-adapter-stacks`
 - Multi-boundary order: `forma-feature-workflow`

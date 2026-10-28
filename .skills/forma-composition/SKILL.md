@@ -57,10 +57,10 @@ Call sites import the root from composition—not providers or infrastructure fa
 
 ## Allowed imports
 
-| Actor                   | Allowed                                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------- |
-| `apps/*/composition/**` | `@core/*` (incl. `/providers`), `@infrastructure/*`, `@adapter/*`, `@ui/*`                          |
-| Rest of app             | `@core/*/models\|intents\|errors`, `@ui/*`, composition roots — **not** `/providers`, **not** infra |
+| Actor                   | Allowed                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/*/composition/**` | `@core/*` (incl. `/providers`), `@infrastructure/*` (incl. `/schemas` + `/providers`), `@adapter/*` (incl. `/mappers` + `/providers`), `@ui/*` |
+| Rest of app             | `@core/*/models\|intents\|errors`, `@adapter/*/intents\|errors`, `@ui/*`, composition roots — **not** `/providers`, **not** `/mappers`, **not** infra |
 
 ## Checklist
 

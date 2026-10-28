@@ -82,41 +82,42 @@ Full test and typecheck commands are intentionally left to CI.
 
 ## Package shapes (Forma)
 
-Boundary packages (`core` / `infrastructure` / `adapter`) expose:
+Entrypoints differ by package kind:
 
-```json
-{
-  "exports": {
-    "./models": "./models/index.ts",
-    "./intents": "./intents/index.intents.ts",
-    "./providers": "./intents/index.providers.ts",
-    "./errors": "./errors/index.ts"
-  }
-}
-```
+| Kind | Public exports |
+| ---- | -------------- |
+| **Core** | `./models`, `./intents`, `./providers`, `./errors` |
+| **Infrastructure** | `./schemas`, `./intents`, `./providers`, `./errors` |
+| **Adapter** | `./mappers`, `./intents`, `./providers`, `./errors` |
 
 ```txt
 packages/core-<feature>/
-  models/           # domain-zod kits
+  models/           # domain-zod kits (*.shape / *.primitive / *.proof)
   intents/          # *.intent.ts + optional *.provider.ts; index.*.ts barrels
   errors/
   operations/       # core-only, internal (capabilities / services)
   package.json
   tsconfig.json
 
-packages/adapter-<feature>-<vendor>/   # or infrastructure-<vendor>/
-  models/           # plain Zod shapes
+packages/infrastructure-<vendor>/
+  schemas/          # plain Zod *.schema.ts
+  intents/
+  errors/
+  package.json      # no operations/
+
+packages/adapter-<feature>-<vendor>/
+  mappers/          # *.mapper.ts (raw → core); no models/
   intents/
   errors/
   package.json      # no operations/
 ```
 
 - **Core** — feature-specific, vendor-agnostic; owns domain kits + `operations/`.
-- **Infrastructure** — vendor-specific, feature-agnostic (raw fetch, clients); no `operations/`.
-- **Adapter** — `adapter-<feature>-<vendor>[…]`; joins one core to a vendor stack; no `operations/`.
+- **Infrastructure** — vendor-specific, feature-agnostic (raw fetch, clients, `schemas/`); no `operations/`.
+- **Adapter** — `adapter-<feature>-<vendor>[…]`; joins one core to a vendor stack via `mappers/`; no `operations/`.
 - **UI** — `@ui/<name>`; importable from apps only.
 
-`/providers` may be imported **only** from `apps/*/composition/**`.
+`/providers` may be imported **only** from `apps/*/composition/**`. `/mappers` → same adapter + composition; `/schemas` → same-vendor infra + stack adapters + composition (non-composition apps still must not import infra).
 
 ### Composition
 
@@ -151,9 +152,9 @@ packages/core-billing/intents/load-user.intent.ts
 | Generator family | Examples                                                                                                                |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Packages         | `core-boundary`, `infrastructure-boundary`, `adapter-boundary`, `ui-package`, `app`, `composition-root`, `feature-spec` |
-| Artifacts        | `shape`, `primitive`, `proof`, `errors`, `capabilities`, `domain-service`, `intent`, `provider`                         |
+| Artifacts        | `shape` (core or infra), `primitive`, `proof`, `mapper`, `errors`, `capabilities`, `domain-service`, `intent`, `provider` |
 
-Artifact prompts: Discovery list package → nested dest under the layer (optional new subdir) → kebab name. Then `pnpm plop:sync` to refresh barrels / root `tsconfig` references.
+Artifact prompts: Discovery list package → nested dest under the layer (optional new subdir) → kebab name. Then `pnpm plop:sync` to refresh barrels / root `tsconfig` references. Apps use `app-tsconfig.json.hbs` (`noEmit`); packages use declaration emit.
 
 ## ESLint in the monorepo
 
@@ -179,7 +180,7 @@ Task-specific guides live in [`.skills/`](./.skills/) (canonical). Symlinks expo
 | `forma-spec-map`         | Multi-capability / god-spec decomposition      |
 | `forma-feature-workflow` | Multi-boundary feature implementation          |
 | `forma-boundary-design`  | Boundary package naming and scope              |
-| `forma-boundary-models`  | Kits, capabilities, services, errors           |
+| `forma-boundary-models`  | Kits, schemas, mappers, capabilities, services |
 | `forma-intents`          | Intents ± provide                              |
 | `forma-adapter-stacks`   | Adapter naming; fetch-raw vs materialize       |
 | `forma-composition`      | App composition (`compose` / `bind` / surface) |
@@ -193,10 +194,10 @@ Principles:
 
 - core packages do not import infrastructure, adapter, or UI packages;
 - infrastructure packages do not import `@core/*` or UI;
-- adapters import core models/intents/errors and their infrastructure stack;
+- adapters import core models/intents/errors and their infrastructure stack (`/schemas`, `/intents`, `/errors`);
 - UI packages (`@ui/*`) are consumed from apps only;
 - core packages do not import frameworks or external SDKs;
 - packages do not import code from `apps/`;
-- boundary packages expose only `models`, `intents`, `providers`, `errors` — core `operations/` is internal (same-feature intents/ops only; never apps/composition) and absent on adapter/infra;
-- `/providers` is importable only from `apps/*/composition/**`;
+- entrypoints by kind: core `models|intents|providers|errors`; infra `schemas|…`; adapter `mappers|…` — core `operations/` is internal (same-feature intents/ops only; never apps/composition) and absent on adapter/infra;
+- `/providers` is importable only from `apps/*/composition/**`; `/mappers` from same adapter + composition only;
 - each app’s `composition/` folder is the Forma wiring point (`compose`, providers, bind, surface).

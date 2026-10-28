@@ -26,7 +26,7 @@ When updating skills:
 | Multi-capability planning / god-spec split                   | `forma-spec-map`         |
 | Multi-boundary feature (SPEC → kits → intents → composition) | `forma-feature-workflow` |
 | Boundary package naming / split                              | `forma-boundary-design`  |
-| Domain kits, capabilities, services, errors                  | `forma-boundary-models`  |
+| Kits / schemas / mappers, capabilities, services, errors     | `forma-boundary-models`  |
 | Intents ± provide (`*.intent.ts` / `*.provider.ts`)          | `forma-intents`          |
 | Adapter stacks / fetch-raw vs materialize                    | `forma-adapter-stacks`   |
 | Composition roots (`compose` / `bind` / surface)             | `forma-composition`      |
@@ -44,6 +44,6 @@ Full router table: skill `forma-monorepo`.
 
 Generators live in [`plop/plopfile.ts`](./plop/plopfile.ts) (root [`plopfile.mjs`](./plopfile.mjs) is a thin TS loader); templates under [`plop/templates/`](./plop/templates/). Artifact flows pick package via Discovery, then nested dest under the layer, then kebab name.
 
-Domain kits (`@xndrjs/domain-zod`) live in **core** only — order **primitive → shape → proof**, then **capabilities** / services in core `operations/` only. Adapter / infra: **plain Zod** shapes in `models/` (no `operations/`). Intents: `*.intent.ts` (+ optional sibling `*.provider.ts`). Errors: `*.error.ts` under `errors/` on any boundary.
+Domain kits (`@xndrjs/domain-zod`) live in **core** only — order **primitive → shape → proof**, then **capabilities** / services in core `operations/` only. Infra: plain Zod `*.schema.ts` under `schemas/`. Adapter: `*.mapper.ts` under `mappers/` (no `models/`, no `operations/`). Intents: `*.intent.ts` (+ optional sibling `*.provider.ts`). Errors: `*.error.ts` under `errors/` on any boundary.
 
 Apps: one composition file per runtime (`server-only` / `client-only`); wire with Forma `compose` / `bind` / `surface`. After package/app scaffolds, run `pnpm plop:sync` so root `tsconfig.json` `references` stay aligned.

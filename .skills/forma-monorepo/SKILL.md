@@ -22,7 +22,7 @@ Do not duplicate that document in chat—summarize and link when needed.
 | `specs/<feature>/SPEC.md` + `DESIGN.md` (Forma inventory)                                  | `forma-feature-workflow` (Phase 1) |
 | New/split boundary package naming (core / infra / adapter / ui)                            | `forma-boundary-design`            |
 | Boundary / forbidden-import violation; ban new framework/SDK in core                       | `forma-boundaries`                 |
-| `*.shape.ts`, `*.primitive.ts`, `*.proof.ts`, capabilities, domain services, errors        | `forma-boundary-models`            |
+| `*.shape.ts`, `*.primitive.ts`, `*.proof.ts`, infra `*.schema.ts`, adapter `*.mapper.ts`, capabilities, services, errors | `forma-boundary-models` |
 | `*.intent.ts` / `*.provider.ts`, unrealized vs realized, barrels                           | `forma-intents`                    |
 | Adapter stack naming, fetch-raw vs materialize, infra packaging                            | `forma-adapter-stacks`             |
 | `apps/*/composition/`, `compose` / `bind` / surface / providers                            | `forma-composition`                |
@@ -32,8 +32,9 @@ Do not duplicate that document in chat—summarize and link when needed.
 ## Global invariants (always)
 
 - **1 Forma boundary = 1 package** (core, infrastructure, adapter).
-- Public entrypoints only: `models`, `intents`, `providers`, `errors`. Core `operations/` is internal (same-feature intents/ops only; never apps/composition); adapter/infra have no `operations/`.
+- Public entrypoints by kind: core `models|intents|providers|errors`; infra `schemas|intents|providers|errors`; adapter `mappers|intents|providers|errors`. Core `operations/` is internal (same-feature intents/ops only; never apps/composition); adapter/infra have no `operations/`.
 - `/providers` importable **only** from `apps/*/composition/**`.
+- `/mappers` → same adapter + composition only; `/schemas` → same-vendor infra + stack adapters + composition (apps still no infra).
 - Core MUST NOT import `@infrastructure/*`, `@adapter/*`, `@ui/*`, frameworks/SDKs, or `apps/*`.
 - Infrastructure MUST NOT import `@core/*`.
 - Adapter joins one core + its vendor stack; apps consume UI and composition roots.

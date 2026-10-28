@@ -22,39 +22,48 @@ Architecture: [forma-oriented-monorepo.md](../../architecture/forma-oriented-mon
 - Name = **feature + vendor stack** (concatenated).
 - Mono-vendor: `adapter-pagebuilder-contentful` → `@adapter/pagebuilder-contentful`.
 - Multi-vendor materializer (no IR): `adapter-pagebuilder-contentful-mulesoft`.
-- Parallel stacks = **separate** packages (e.g. `…-datocms-workato`), never one god-package importing all vendors.
+- Parallel stacks = separate packages (e.g. `…-datocms-workato`), never one god-package importing all vendors.
 - No intermediate representation layer: the adapter may know vendor raw shapes; the unit of substitution is the whole adapter stack package.
 
-Scaffold with `pnpm plop` → `adapter-boundary` (pick core + infra Candidates). `package.json` must list workspace deps on that core and those infrastructure packages.
+Scaffold with `pnpm plop` → `adapter-boundary` (pick core + infra Candidates). `package.json` must list workspace deps on that core and those infrastructure packages. Public entrypoints: `mappers`, `intents`, `providers`, `errors` (no `models/`).
 
 ## Fetch raw vs materialize
 
 | Role            | Typical home                                        | Responsibility                                             |
 | --------------- | --------------------------------------------------- | ---------------------------------------------------------- |
-| **Fetch raw**   | `@infrastructure/<vendor>` intents / providers      | Vendor-native shapes; batching/caching; **no** `@core/*`   |
-| **Materialize** | `@adapter/<feature>-<vendors…>` intents / providers | Map raw → core models; realize unrealized **core** intents |
+| **Fetch raw**   | `@infrastructure/<vendor>` intents / providers      | Vendor-native shapes (`/schemas`); batching/caching; **no** `@core/*` |
+| **Materialize** | `@adapter/<feature>-<vendors…>` intents / providers | Map raw → core models via `/mappers`; realize unrealized **core** intents |
 
 The same raw fetch can feed multiple adapters projecting into different `@core/*` read models.
+
+```txt
+infra /schemas  →  adapter /mappers  →  adapter providers  →  app-composition
+core /models    ↗
+```
 
 ## Infrastructure packaging
 
 - Keep clients, SDK bootstrap, raw helpers, caching in `@infrastructure/<vendor>`.
+- Vendor/raw Zod lives under `schemas/` (`*.schema.ts`), exported as `./schemas`.
 - Shared vendor packages hold **reusable low-level building blocks only**—not feature orchestration.
-- Feature-specific mapping and core-intent realization live in the adapter.
+- Feature-specific mapping and core-intent realization live in the adapter (`mappers/` + intents/providers).
 - Extract shared primitives only when reuse appears across **at least two** adapter stacks; split large vendor packages by stable sub-capabilities, not domain workflows.
 
 ## Adapter may
 
 - Import `@core/<feature>/{models,intents,errors}` for its feature.
-- Import `@infrastructure/*` packages of its declared stack.
-- Hold mappers/helpers and plain Zod shapes; project into **core** domain kits (no `@xndrjs/domain` / `domain-zod` in adapter).
+- Import `@infrastructure/*/{schemas,intents,errors}` packages of its declared stack.
+- Hold `mappers/*.mapper.ts` that project into **core** domain kits (no `@xndrjs/domain` / `domain-zod` in adapter).
+- Scaffold mappers with `pnpm plop` → `mapper`.
 
 ## Adapter must not
 
+- Own a `models/` folder or plain Zod DTO entrypoint (mapping lives in `mappers/`; raw Zod in infra `schemas/`).
 - Import `/providers` except via app composition.
 - Import unrelated vendor packages “just in case.”
 - Own app composition or domain rules that belong in core `operations/`.
 - Be imported from infrastructure or core.
+- Expose `/mappers` to non-composition app code (same-adapter + composition only).
 
 ## Checklist before scaffolding
 
@@ -67,6 +76,7 @@ The same raw fetch can feed multiple adapters projecting into different `@core/*
 ## Related
 
 - Intents: `forma-intents`
+- Kits / schemas / mappers: `forma-boundary-models`
 - Composition bind: `forma-composition`
 - Package naming: `forma-boundary-design`
 - Boundaries: `forma-boundaries`
