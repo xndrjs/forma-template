@@ -9,7 +9,7 @@ import plugin from "./eslint-rules/index.mjs";
 
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 const jiti = createJiti(import.meta.url);
-const { createFormaBoundariesConfig } = jiti(
+const { createFormaBoundariesConfig } = await jiti.import(
   "./eslint-rules/boundaries/index.ts",
 );
 
