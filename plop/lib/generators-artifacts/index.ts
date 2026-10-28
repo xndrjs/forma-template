@@ -6,6 +6,7 @@ import { registerCapabilities } from "./capabilities";
 import { registerDomainService } from "./domain-service";
 import { registerErrors } from "./errors";
 import { registerIntent } from "./intent";
+import { registerMapper } from "./mapper";
 import { registerPrimitive } from "./primitive";
 import { registerProof } from "./proof";
 import { registerProvider } from "./provider";
@@ -25,4 +26,5 @@ export function registerArtifactGenerators(
   registerDomainService(plop, plopOs, rules, root);
   registerIntent(plop, plopOs, rules, root);
   registerProvider(plop, plopOs, rules, root);
+  registerMapper(plop, plopOs, rules, root);
 }
