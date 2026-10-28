@@ -27,7 +27,7 @@ export function registerApp(plop: NodePlopAPI): void {
         {
           type: "add",
           path: `${base}/tsconfig.json`,
-          templateFile: T("boundary/package-tsconfig.json.hbs"),
+          templateFile: T("boundary/app-tsconfig.json.hbs"),
           ...f,
         },
         {
