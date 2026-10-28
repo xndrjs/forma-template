@@ -7,10 +7,10 @@ export type CoreLayer =
   | "providers";
 
 /** Entrypoint layers under `packages/infrastructure-*` (no `operations/`). */
-export type InfraLayer = "models" | "intents" | "errors" | "providers";
+export type InfraLayer = "schemas" | "intents" | "errors" | "providers";
 
 /** Entrypoint layers under `packages/adapter-*` (no `operations/`). */
-export type AdapterLayer = InfraLayer;
+export type AdapterLayer = "mappers" | "intents" | "errors" | "providers";
 
 export type CoreElementType = `core-${CoreLayer}`;
 export type InfraElementType = `infrastructure-${InfraLayer}`;
@@ -23,14 +23,28 @@ export const publicCoreLayers = [
   "errors",
 ] as const satisfies readonly CoreLayer[];
 
-/** Infra/adapter layers excluding providers (providers = composition-only). */
+/**
+ * Adapter layers importable from non-composition apps
+ * (not mappers, not providers).
+ */
+export const publicAdapterLayers = [
+  "intents",
+  "errors",
+] as const satisfies readonly AdapterLayer[];
+
+/** Infra layers excluding providers (providers = composition-only). */
 export const nonProviderInfraLayers = [
-  "models",
+  "schemas",
   "intents",
   "errors",
 ] as const satisfies readonly InfraLayer[];
 
-export const nonProviderAdapterLayers = nonProviderInfraLayers;
+/** Adapter layers excluding providers (providers = composition-only). */
+export const nonProviderAdapterLayers = [
+  "mappers",
+  "intents",
+  "errors",
+] as const satisfies readonly AdapterLayer[];
 
 const ALL_CORE_LAYERS = [
   "models",
@@ -41,13 +55,18 @@ const ALL_CORE_LAYERS = [
 ] as const satisfies readonly CoreLayer[];
 
 const ALL_INFRA_LAYERS = [
-  "models",
+  "schemas",
   "intents",
   "errors",
   "providers",
 ] as const satisfies readonly InfraLayer[];
 
-const ALL_ADAPTER_LAYERS = ALL_INFRA_LAYERS;
+const ALL_ADAPTER_LAYERS = [
+  "mappers",
+  "intents",
+  "errors",
+  "providers",
+] as const satisfies readonly AdapterLayer[];
 
 /** Boundary element types for core layers (default: all). */
 export function core(layers?: readonly CoreLayer[]): CoreElementType[] {

@@ -7,6 +7,7 @@ import {
   infra,
   nonProviderAdapterLayers,
   nonProviderInfraLayers,
+  publicAdapterLayers,
   publicCoreLayers,
 } from "./layers";
 
@@ -14,6 +15,8 @@ import {
  * Forma `boundaries/dependencies` allow rules (`default: disallow`).
  *
  * - `*-providers`: importable only from `app-composition`
+ * - `adapter-mappers`: same-adapter + `app-composition` (not non-composition apps)
+ * - `infrastructure-schemas`: same-vendor infra + adapters + composition
  * - `core-operations`: only same-feature `core-intents` / `core-operations`
  */
 export const formaDependencyRules = [
@@ -40,7 +43,7 @@ export const formaDependencyRules = [
           "app",
           "app-composition",
           ...core(publicCoreLayers),
-          ...adapter(nonProviderAdapterLayers),
+          ...adapter(publicAdapterLayers),
           "ui",
         ],
       },
@@ -105,10 +108,10 @@ export const formaDependencyRules = [
     },
   },
   {
-    from: { type: "infrastructure-models" },
+    from: { type: "infrastructure-schemas" },
     allow: {
       to: {
-        type: infra(["models", "errors"]),
+        type: infra(["schemas", "errors"]),
         captured: sameInfra,
       },
     },
@@ -159,10 +162,10 @@ export const formaDependencyRules = [
     },
   },
   {
-    from: { type: "adapter-models" },
+    from: { type: "adapter-mappers" },
     allow: {
       to: {
-        type: adapter(["models", "errors"]),
+        type: adapter(["mappers", "errors"]),
         captured: sameAdapter,
       },
     },

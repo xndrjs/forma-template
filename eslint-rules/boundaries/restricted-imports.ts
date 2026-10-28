@@ -7,13 +7,13 @@ export const deepCoreImportBan = {
 export const deepInfraImportBan = {
   group: ["@infrastructure/*/*/**"],
   message:
-    "Import infrastructure through fixed entry points only: @infrastructure/<vendor>/{models,intents,providers,errors}. Deep imports are forbidden.",
+    "Import infrastructure through fixed entry points only: @infrastructure/<vendor>/{schemas,intents,providers,errors}. Deep imports are forbidden.",
 };
 
 export const deepAdapterImportBan = {
   group: ["@adapter/*/*/**"],
   message:
-    "Import adapter packages through fixed entry points only: @adapter/<stack>/{models,intents,providers,errors}. Deep imports are forbidden.",
+    "Import adapter packages through fixed entry points only: @adapter/<stack>/{mappers,intents,providers,errors}. Deep imports are forbidden.",
 };
 
 /**

@@ -107,9 +107,9 @@ export const formaElements = [
     capture: ["infrastructure"],
   },
   {
-    type: "infrastructure-models",
+    type: "infrastructure-schemas",
     mode: "folder",
-    pattern: "packages/infrastructure-*/models",
+    pattern: "packages/infrastructure-*/schemas",
     capture: ["infrastructure"],
   },
   {
@@ -125,9 +125,9 @@ export const formaElements = [
     capture: ["adapter"],
   },
   {
-    type: "adapter-models",
+    type: "adapter-mappers",
     mode: "folder",
-    pattern: "packages/adapter-*/models",
+    pattern: "packages/adapter-*/mappers",
     capture: ["adapter"],
   },
   {

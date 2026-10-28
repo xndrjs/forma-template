@@ -5,6 +5,7 @@ import checkFile from "eslint-plugin-check-file";
 
 import { formaDependenciesOptions } from "./dependencies";
 import { formaElements } from "./elements";
+import { formaFilenameBlocklist } from "./filename-blocklist";
 import {
   coreRestrictedImportPatterns,
   sourceRestrictedImportPatterns,
@@ -16,6 +17,7 @@ export {
   infra,
   nonProviderAdapterLayers,
   nonProviderInfraLayers,
+  publicAdapterLayers,
   publicCoreLayers,
   type AdapterElementType,
   type AdapterLayer,
@@ -27,6 +29,7 @@ export {
 export { sameAdapter, sameFeature, sameInfra } from "./captures";
 export { formaElements } from "./elements";
 export { formaDependenciesOptions, formaDependencyRules } from "./dependencies";
+export { formaFilenameBlocklist } from "./filename-blocklist";
 export {
   coreRestrictedImportPatterns,
   deepAdapterImportBan,
@@ -77,19 +80,7 @@ export function createFormaBoundariesConfig({
           "error",
           { patterns: sourceRestrictedImportPatterns },
         ],
-        "check-file/filename-blocklist": [
-          "error",
-          {
-            "packages/core-*/models/!(*.shape(.test)?|*.test|*.primitive(.test)?|*.proof(.test)?|index).ts":
-              "*.shape.ts, *.primitive.ts, *.proof.ts, colocated *.test.ts, or index.ts",
-            "packages/{core,adapter,infrastructure}-*/errors/!(*.error|index).ts":
-              "*.error.ts or index.ts",
-            "packages/core-*/operations/!(*.capabilities(.test)?|*.service(.test)?|index).ts":
-              "*.capabilities.ts, *.service.ts, colocated *.test.ts, or index.ts",
-            "packages/core-*/intents/!(*.intent(.test)?|*.provider(.test)?|index.intents|index.providers).ts":
-              "*.intent.ts, *.provider.ts, index.intents.ts, or index.providers.ts",
-          },
-        ],
+        "check-file/filename-blocklist": ["error", formaFilenameBlocklist],
       },
     },
     {

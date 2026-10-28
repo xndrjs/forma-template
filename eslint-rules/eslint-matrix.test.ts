@@ -35,7 +35,7 @@ function allowTypes(rule: { allow?: unknown } | undefined): string {
 }
 
 describe("Forma ESLint matrix", () => {
-  it("splits infrastructure/adapter into models|intents|errors|providers elements", async () => {
+  it("splits infrastructure into schemas|intents|errors|providers and adapter into mappers|intents|errors|providers", async () => {
     const eslint = new ESLint({ cwd: repoRoot });
     const config = await eslint.calculateConfigForFile(
       path.join(repoRoot, "apps/web/composition/root.ts"),
@@ -43,10 +43,24 @@ describe("Forma ESLint matrix", () => {
     const elements = JSON.stringify(
       config.settings?.["boundaries/elements"] ?? null,
     );
-    for (const layer of ["models", "intents", "errors", "providers"] as const) {
+    for (const layer of [
+      "schemas",
+      "intents",
+      "errors",
+      "providers",
+    ] as const) {
       expect(elements).toContain(`infrastructure-${layer}`);
+    }
+    for (const layer of [
+      "mappers",
+      "intents",
+      "errors",
+      "providers",
+    ] as const) {
       expect(elements).toContain(`adapter-${layer}`);
     }
+    expect(elements).not.toContain("infrastructure-models");
+    expect(elements).not.toContain("adapter-models");
     // Monolith package elements must not remain
     expect(elements).not.toMatch(/"type":"infrastructure"/);
     expect(elements).not.toMatch(/"type":"adapter"/);
@@ -108,7 +122,7 @@ describe("Forma ESLint matrix", () => {
     const config = await eslint.calculateConfigForFile(
       path.join(
         repoRoot,
-        "packages/infrastructure-contentful/models/index.ts",
+        "packages/infrastructure-contentful/schemas/index.ts",
       ),
     );
     const rules = dependencyRulesFor(config);
@@ -136,7 +150,7 @@ describe("Forma ESLint matrix", () => {
     }
   });
 
-  it("disallows app → providers in boundaries matrix", async () => {
+  it("disallows app → providers and adapter-mappers in boundaries matrix", async () => {
     const eslint = new ESLint({ cwd: repoRoot });
     const config = await eslint.calculateConfigForFile(
       path.join(repoRoot, "apps/web/routes/page.ts"),
@@ -145,7 +159,10 @@ describe("Forma ESLint matrix", () => {
     const app = rules.find(
       (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
     );
-    expect(JSON.stringify(app?.allow ?? null)).not.toContain("providers");
+    const appAllow = JSON.stringify(app?.allow ?? null);
+    expect(appAllow).not.toContain("providers");
+    expect(appAllow).not.toContain("adapter-mappers");
+    expect(appAllow).not.toContain("infrastructure-");
   });
 
   it("enforces Forma package kinds (intents/adapter), not ports/use-cases layers", async () => {
