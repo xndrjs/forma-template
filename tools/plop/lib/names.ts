@@ -18,3 +18,11 @@ export function kebabOk(v: unknown): boolean {
 export function kebabValidate(v: unknown): true | string {
   return kebabOk(v) ? true : "kebab-case name required (e.g. page-slug)";
 }
+
+/** Forma boundary id from package folder (`core-pagebuilder` → `pagebuilder`). */
+export function boundaryNameFromPackageDir(pkgDir: string): string {
+  return pkgDir
+    .replace(/^core-/, "")
+    .replace(/^adapter-/, "")
+    .replace(/^infrastructure-/, "");
+}

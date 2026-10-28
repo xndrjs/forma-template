@@ -4,7 +4,8 @@ import type { NodePlopAPI } from "plop";
 
 import type { FormaDiscoveryRules } from "../discovery";
 import { defaultFlags, T } from "../helpers";
-import { relPosix, resolveDest } from "../paths";
+import { boundaryNameFromPackageDir } from "../names";
+import { packageRootImport, relPosix, resolveDest } from "../paths";
 import { kebabNamePrompt, nestedDestPrompt, newSubdirPrompt } from "../prompts";
 import { boundaryPackagePrompt } from "./prompts";
 
@@ -32,11 +33,14 @@ export function registerIntent(
     actions(answers) {
       const dest = resolveDest(answers.destPath, answers.newSubdir);
       const rel = relPosix(root, dest);
-      const pkgDir = path.basename(answers.packagePath);
-      answers.boundary = pkgDir
-        .replace(/^core-/, "")
-        .replace(/^adapter-/, "")
-        .replace(/^infrastructure-/, "");
+      answers.boundary = boundaryNameFromPackageDir(
+        path.basename(answers.packagePath),
+      );
+      answers.boundaryImport = packageRootImport(
+        answers.packagePath,
+        dest,
+        "boundary",
+      );
       const f = defaultFlags();
       const actions = [
         {

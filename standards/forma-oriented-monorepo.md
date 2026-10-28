@@ -104,6 +104,7 @@ flowchart LR
 **Core** (`packages/core-<feature>/`):
 
 ```text
+  boundary.ts          # shared Forma boundary("…") — same-package import only (not an entrypoint)
   models/              # domain-zod kits: *.primitive / *.shape / *.proof
   intents/             # *.intent.ts + optional sibling *.provider.ts
     index.intents.ts   # barrel: all *.intent.ts (plop-os sync)
@@ -116,6 +117,7 @@ flowchart LR
 **Infrastructure** (`packages/infrastructure-<vendor>/`):
 
 ```text
+  boundary.ts          # shared Forma boundary("…") — same-package import only (not an entrypoint)
   schemas/             # plain Zod *.schema.ts (vendor/raw structural validation)
   intents/
     index.intents.ts
@@ -127,6 +129,7 @@ flowchart LR
 **Adapter** (`packages/adapter-<feature>-<vendors…>/`):
 
 ```text
+  boundary.ts          # shared Forma boundary("…") — same-package import only (not an entrypoint)
   mappers/             # *.mapper.ts — project infra raw → core models (no models/)
   intents/
     index.intents.ts
@@ -148,12 +151,14 @@ flowchart LR
 | `/providers`  | **Only** `apps/*/composition/**`                                                                                                                            |
 | `/errors`     | Same rules as the kind’s primary data entrypoint for cross-package use                                                                                      |
 | `/operations` | **None** (no public export). Cross-boundary or app-facing behavior → expose an **intent** whose provide calls into `operations/`                            |
+| `boundary.ts` | **None** (no public export). Same-package only — intents (and other same-package modules) import the shared Forma boundary handle                            |
 
 ### Intent files
 
 - Contract: `intents/<name>.intent.ts`.
 - Realization (optional): sibling `intents/<name>.provider.ts` with `Intent.provide…`.
 - Unrealized = contract only; realized = contract + provider file.
+- Import the package-root `boundary.ts` handle — do **not** call `boundary("…")` again in each intent file.
 - Barrels: `index.intents.ts` exports all `*.intent.ts`; `index.providers.ts` exports only `*.provider.ts` (kept by `pnpm plop:sync`).
 
 ### Models / schemas / mappers by package kind

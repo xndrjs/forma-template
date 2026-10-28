@@ -55,6 +55,7 @@ export function registerAdapterBoundary(
       answers.feature = feature;
       answers.vendors = vendors;
       answers.stack = stack;
+      answers.boundary = stack;
       return [
         {
           type: "add",
@@ -72,6 +73,12 @@ export function registerAdapterBoundary(
           type: "add",
           path: `${base}/README.md`,
           templateFile: T("boundary/adapter-readme.md.hbs"),
+          ...f,
+        },
+        {
+          type: "add",
+          path: `${base}/boundary.ts`,
+          templateFile: T("boundary/boundary.ts.hbs"),
           ...f,
         },
         {

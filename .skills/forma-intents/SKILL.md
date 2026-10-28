@@ -7,7 +7,7 @@ description: Implements or reviews Forma *.intent.ts contracts and optional *.pr
 
 ## What an intent is here
 
-`intents/<kebab>.intent.ts` declares a **Forma intent** on one boundary (`boundary("…").intent("…").contract<In, Out, Err>()`).
+`intents/<kebab>.intent.ts` declares a **Forma intent** on the package’s shared boundary (`import { … } from "../boundary"` → `.intent("…").contract<In, Out, Err>()`).
 
 | Kind           | Files                                   | Meaning                                                                 |
 | -------------- | --------------------------------------- | ----------------------------------------------------------------------- |
@@ -19,6 +19,8 @@ Role-oriented names (domain verbs), not vendor product names on **core** intents
 Architecture: [forma-oriented-monorepo.md](../../standards/forma-oriented-monorepo.md) — _Intent files_, _Entrypoints_.
 
 ## Files & barrels
+
+Each core / infra / adapter package has a root `boundary.ts` (scaffold via `*-boundary` generators) that exports the single Forma `boundary("…")` for that package. Intents import it — they do **not** redefine `boundary("…")`.
 
 Add via `pnpm plop` generators `intent` / `provider`, or by hand under the owning boundary’s `intents/`:
 
@@ -38,15 +40,14 @@ Then `pnpm plop:sync`:
 | Keep contracts thin (load/save/notify-style)        | Stuff orchestration into the contract type alone       |
 | Realize with `*.provider.ts` on the owning boundary | Implement core contracts inside infrastructure         |
 | Import models/schemas/errors from the same boundary | Import `/providers` outside composition                |
+| Import package-root `boundary.ts`                   | Call `boundary("…")` again in each intent file         |
 
 ## Examples (smoke)
 
 Unrealized core contract:
 
 ```ts
-import { boundary } from "@xndrjs/forma";
-
-const Pagebuilder = boundary("pagebuilder");
+import { Pagebuilder } from "../boundary";
 
 export const LoadPage = Pagebuilder.intent("loadPage").contract<
   { readonly slug: string },
@@ -96,8 +97,10 @@ export const LoadPageFromContentfulProvider =
 - Vendor names on **core** intent types (`ContentfulLoadPage`).
 - Core contracts accepting CMS JSON / Prisma rows.
 - One mega-intent for an entire feature when DESIGN splits roles.
+- Redefining `boundary("…")` in each intent instead of importing package-root `boundary.ts`.
 - Hand-rolling intent files without population (barrel drift).
 - Importing `@*/providers` from apps outside `composition/`.
+- Exporting `boundary.ts` as a public package entrypoint.
 
 ## Related
 

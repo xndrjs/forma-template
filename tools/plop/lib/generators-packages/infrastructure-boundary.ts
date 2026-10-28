@@ -16,6 +16,7 @@ export function registerInfrastructureBoundary(plop: NodePlopAPI): void {
     ],
     actions(answers) {
       const base = `packages/infrastructure-${answers.name}`;
+      answers.boundary = answers.name;
       const f = defaultFlags();
       return [
         {
@@ -34,6 +35,12 @@ export function registerInfrastructureBoundary(plop: NodePlopAPI): void {
           type: "add",
           path: `${base}/README.md`,
           templateFile: T("boundary/infra-readme.md.hbs"),
+          ...f,
+        },
+        {
+          type: "add",
+          path: `${base}/boundary.ts`,
+          templateFile: T("boundary/boundary.ts.hbs"),
           ...f,
         },
         {

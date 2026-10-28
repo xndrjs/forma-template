@@ -2,6 +2,6 @@
 
 Forma **adapter** joining `@core/{{feature}}` to {{#each vendors}}`@infrastructure/{{this}}`{{#unless @last}}, {{/unless}}{{/each}}.
 
-Public entrypoints: `mappers`, `intents`, `providers`, `errors`. Mappers (`*.mapper.ts`) project infra raw → core models. No `operations/`.
+Shared Forma handle: package-root `boundary.ts` (same-package import only). Public entrypoints: `mappers`, `intents`, `providers`, `errors`. Mappers (`*.mapper.ts`) project infra raw → core models. No `operations/`.
 
 TODO (doc)

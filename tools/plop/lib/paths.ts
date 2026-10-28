@@ -24,3 +24,13 @@ export function resolveDest(destPath: string, newSubdir?: string): string {
   }
   return path.join(destPath, ...sub.split("/"));
 }
+
+/** Relative import from `destAbs` to `packagePath/<moduleName>` (no extension). */
+export function packageRootImport(
+  packagePath: string,
+  destAbs: string,
+  moduleName: string,
+): string {
+  const rel = toPosix(path.relative(destAbs, path.join(packagePath, moduleName)));
+  return rel.startsWith(".") ? rel : `./${rel}`;
+}

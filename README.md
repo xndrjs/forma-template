@@ -92,6 +92,7 @@ Entrypoints differ by package kind:
 
 ```txt
 packages/core-<feature>/
+  boundary.ts       # shared Forma boundary("…"); same-package only
   models/           # domain-zod kits (*.shape / *.primitive / *.proof)
   intents/          # *.intent.ts + optional *.provider.ts; index.*.ts barrels
   errors/
@@ -100,12 +101,14 @@ packages/core-<feature>/
   tsconfig.json
 
 packages/infrastructure-<vendor>/
+  boundary.ts
   schemas/          # plain Zod *.schema.ts
   intents/
   errors/
   package.json      # no operations/
 
 packages/adapter-<feature>-<vendor>/
+  boundary.ts
   mappers/          # *.mapper.ts (raw → core); no models/
   intents/
   errors/
