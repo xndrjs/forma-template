@@ -31,6 +31,7 @@ Intent, actors, stories, acceptance criteria—technology- and vendor-agnostic. 
 - `@infrastructure/<vendor>` packages needed for the stack
 - `@adapter/<feature>-<vendor>[…]` stacks and materialization responsibilities
 - App composition roots (server / client) and surface aliases
+- App surfaces and reusable `@ui/*` pieces (presentation last)
 - Sequence diagrams when useful (`bind` / provide call paths)
 
 Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition)—not ports, use cases, loaders, or repositories.
@@ -40,13 +41,17 @@ Inventory only Forma artifacts (boundaries, kits, intents, adapters, composition
 After approval of `SPEC.md` + `DESIGN.md` (or delivery mode—see feature-workflow skill):
 
 ```text
-Boundary kits (primitive → shape → proof) on core
-  → Capabilities / domain services (core operations/ only)
-  → Errors (any boundary errors/)
-  → Intents (± provide)
-  → Infrastructure (raw) + Adapter (materialize / realize core intents)
-  → Composition (providers, bind, surface)
+1. Core
+   1.1 Domain kits (primitive → shape → proof); errors under errors/
+   1.2 Operations: capabilities + domain services (core operations/ only)
+   1.3 Intents (± provide)
+2. Infrastructure (schemas, fetch-raw intents/providers — no @core/*)
+3. Adapters (mappers; materialize / realize core intents) — only after 1 + 2
+4. Composition (providers, bind, surface)
+5. Apps (routes/screens; reusable UI in @ui/*) — only after 1–4 are done and tested
 ```
+
+UI and app chrome come last: business logic and external integrations must already work without a presentation layer.
 
 Halt for approval between phases by default. Large/critical work may ship a PR with **only** `specs/<feature>/*` before code. Match existing package conventions when implementing.
 

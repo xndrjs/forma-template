@@ -18,16 +18,16 @@ Lean docs: [specification-driven-feature-workflow.md](../../standards/specificat
 
 ## One phase per run (hard gate)
 
-**Non-negotiable:** Phases 1–6 are **never** completed in a single agent run or a single user prompt.
+**Non-negotiable:** Phases 1–8 are **never** completed in a single agent run or a single user prompt.
 
 | Rule                  | Meaning                                                                          |
 | --------------------- | -------------------------------------------------------------------------------- |
 | **One active phase**  | Work only the **current** phase. Do not start the next in the same run.          |
 | **Stop at phase end** | When the phase deliverable and **Gate** are met, **stop**. Summarize next phase. |
 | **Wait for the user** | Do not proceed until the user **confirms** or asks for corrections (same phase). |
-| **Serial order**      | Phases **1 → 2 → 3 → 4 → 5 → 6**. No skipping.                                   |
+| **Serial order**      | Phases **1 → 2 → 3 → 4 → 5 → 6 → 7 → 8**. No skipping.                           |
 
-**Prohibited:** implementing kits, intents, adapters, and composition in one run because “the spec is clear.”
+**Prohibited:** implementing kits, intents, infrastructure, adapters, composition, and UI/apps in one run because “the spec is clear.”
 
 **Allowed in one run:** work **within** the current phase only.
 
@@ -75,6 +75,7 @@ Until `SPEC.md` is technology-agnostic, Phase 1 is incomplete. Write **to-be**, 
 | **Infrastructure**   | `@infrastructure/<vendor>` for the stack (fetch raw)                 |
 | **Adapter stack(s)** | `@adapter/<feature>-<vendors…>`; materialize / realize core intents  |
 | **Composition**      | app roots (server / client); surface aliases; binds                  |
+| **Apps / UI**        | routes/screens; `@ui/*` shared presentational pieces (presentation last) |
 
 Optional Mermaid `sequenceDiagram` when bind/provide paths are non-obvious.
 
@@ -123,28 +124,42 @@ Implement DESIGN capabilities and services **before** intents that call them.
 
 ---
 
-## Phase 4 — Intents (± provide)
+## Phase 4 — Core intents (± provide)
 
-Implement DESIGN intents on the owning boundaries.
+Implement DESIGN intents on **`@core/<feature>`** only. Infrastructure and adapter intents wait for Phases 5–6.
 
 1. Unrealized contracts where composition will `bind`.
-2. Realized providers (`*.provider.ts`) where the boundary owns the behavior (`using` as needed).
+2. Realized providers (`*.provider.ts`) where core owns the behavior (`using` as needed).
 3. Keep `index.intents.ts` / `index.providers.ts` barrels in sync — skill `forma-intents`.
 
 **Gate:** contracts free of vendor types on core · lint · **stop**
 
 ---
 
-## Phase 5 — Infrastructure + adapter
+## Phase 5 — Infrastructure
 
-1. Infrastructure: plain Zod under `schemas/` (`*.schema.ts` via shape→infra) + fetch intents (no `@core/*`).
-2. Adapter stack: `mappers/*.mapper.ts` (map raw → core) + realize unrealized core intents — skill `forma-adapter-stacks` / `forma-boundary-models`.
+Implement DESIGN `@infrastructure/<vendor>` **before** any adapter work. Core (Phases 2–4) and infrastructure must both be in place before Phase 6.
+
+1. Plain Zod under `schemas/` (`*.schema.ts`) — vendor/raw structural validation only.
+2. Fetch-raw intents (± provide); batching/caching as needed.
+3. **No** `@core/*` imports; no feature mapping or domain rules here — skill `forma-boundary-models` / `forma-intents`.
+
+**Gate:** infra schemas/intents green · no `@core/*` in infrastructure · **stop**
+
+---
+
+## Phase 6 — Adapter
+
+Only after **Core (2–4) and Infrastructure (5)** are done.
+
+1. Adapter stack package(s): `mappers/*.mapper.ts` (map raw → core).
+2. Realize unrealized core intents (materialize) — skill `forma-adapter-stacks` / `forma-boundary-models`.
 
 **Gate:** mapper/provider tests as needed · no SDK types leaking into `@core/*` · **stop**
 
 ---
 
-## Phase 6 — Composition
+## Phase 7 — Composition
 
 Wire via skill **`forma-composition`**.
 
@@ -152,7 +167,19 @@ Wire via skill **`forma-composition`**.
 2. Register providers, `bind` unrealized → satisfier, expose `surface`.
 3. No new business rules in composition.
 
-**Gate:** `pnpm lint` · relevant tests · **stop — wait for sign-off**
+**Gate:** `pnpm lint` · relevant tests · **stop**
+
+---
+
+## Phase 8 — Apps + UI
+
+Only after **Core, Infrastructure, Adapter, and Composition (2–7)** are done and tested. Presentation last — do not invent screens to “explore” unfinished domain or vendor wiring.
+
+1. App routes / screens / handlers that consume composition roots (not providers or infra factories).
+2. Reusable presentational pieces in `@ui/<name>` when shared across apps or routes — apps only may import `@ui/*`.
+3. No new domain rules, proofs, or vendor mapping in React/UI.
+
+**Gate:** `pnpm lint` · relevant app/UI tests · **stop — wait for sign-off**
 
 ---
 
@@ -169,6 +196,9 @@ Wire via skill **`forma-composition`**.
 - Domain invariants only in adapters or React
 - Cross-core imports without explicit design
 - Mixing server/client composition without runtime markers
+- Starting adapters (Phase 6) before infrastructure (Phase 5) is complete
+- Mapping or realizing core intents inside `@infrastructure/*`
+- Building apps/UI (Phase 8) before composition and underlying boundaries are tested
 
 **Never** relax workspace tooling to bypass a violation. Exception: new framework name on the core ban list—`forma-boundaries`—with user awareness.
 
@@ -176,13 +206,15 @@ Wire via skill **`forma-composition`**.
 
 ## Skill map (by phase)
 
-| Phase | Skills                                  |
-| ----- | --------------------------------------- |
-| 0     | `forma-spec-map`                        |
-| 1     | `forma-boundary-design`, _(this skill)_ |
-| 2–3   | `forma-boundary-models`                 |
-| 4     | `forma-intents`                         |
-| 5     | `forma-adapter-stacks`                  |
-| 6     | `forma-composition`, `forma-boundaries` |
+| Phase | Skills                                                   |
+| ----- | -------------------------------------------------------- |
+| 0     | `forma-spec-map`                                         |
+| 1     | `forma-boundary-design`, _(this skill)_                  |
+| 2–3   | `forma-boundary-models`                                  |
+| 4     | `forma-intents`                                          |
+| 5     | `forma-boundary-models`, `forma-intents` (infra only)    |
+| 6     | `forma-adapter-stacks`, `forma-boundary-models`          |
+| 7     | `forma-composition`, `forma-boundaries`                  |
+| 8     | _(this skill)_ — apps consume composition; `@ui/*` only from apps |
 
 Router: `forma-monorepo`.
