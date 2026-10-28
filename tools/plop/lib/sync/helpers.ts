@@ -2,7 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import type { SyncContext } from "@xndrjs/plop-os";
 
-/** Relpath export line from a layer barrel. */
+/**
+ * Relpath export line from a layer barrel.
+ * Extensionless specifier only — never append `.js` / `.ts`.
+ */
 export function exportLine(layerDir: string, fileAbs: string): string {
   const rel = path
     .relative(layerDir, fileAbs)

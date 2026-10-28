@@ -55,7 +55,7 @@ export const formaDependencyRules = [
     from: { type: "core-errors" },
     allow: {
       to: {
-        type: "core-errors",
+        type: ["core-errors", "core-boundary"],
         captured: sameFeature,
       },
     },
@@ -64,7 +64,7 @@ export const formaDependencyRules = [
     from: { type: "core-models" },
     allow: {
       to: {
-        type: core(["models", "errors"]),
+        type: [...core(["models", "errors"]), "core-boundary"],
         captured: sameFeature,
       },
     },
@@ -73,7 +73,7 @@ export const formaDependencyRules = [
     from: { type: "core-operations" },
     allow: {
       to: {
-        type: core(["models", "operations", "errors"]),
+        type: [...core(["models", "operations", "errors"]), "core-boundary"],
         captured: sameFeature,
       },
     },
@@ -82,7 +82,10 @@ export const formaDependencyRules = [
     from: { type: "core-intents" },
     allow: {
       to: {
-        type: core(["models", "operations", "intents", "errors"]),
+        type: [
+          ...core(["models", "operations", "intents", "errors"]),
+          "core-boundary",
+        ],
         captured: sameFeature,
       },
     },
@@ -91,7 +94,7 @@ export const formaDependencyRules = [
     from: { type: "core-providers" },
     allow: {
       to: {
-        type: core(),
+        type: [...core(), "core-boundary"],
         captured: sameFeature,
       },
     },
@@ -102,7 +105,7 @@ export const formaDependencyRules = [
     from: { type: "infrastructure-errors" },
     allow: {
       to: {
-        type: "infrastructure-errors",
+        type: ["infrastructure-errors", "infrastructure-boundary"],
         captured: sameInfra,
       },
     },
@@ -111,7 +114,7 @@ export const formaDependencyRules = [
     from: { type: "infrastructure-schemas" },
     allow: {
       to: {
-        type: infra(["schemas", "errors"]),
+        type: [...infra(["schemas", "errors"]), "infrastructure-boundary"],
         captured: sameInfra,
       },
     },
@@ -120,7 +123,7 @@ export const formaDependencyRules = [
     from: { type: "infrastructure-intents" },
     allow: {
       to: {
-        type: infra(nonProviderInfraLayers),
+        type: [...infra(nonProviderInfraLayers), "infrastructure-boundary"],
         captured: sameInfra,
       },
     },
@@ -129,7 +132,7 @@ export const formaDependencyRules = [
     from: { type: "infrastructure-providers" },
     allow: {
       to: {
-        type: infra(),
+        type: [...infra(), "infrastructure-boundary"],
         captured: sameInfra,
       },
     },
@@ -156,7 +159,7 @@ export const formaDependencyRules = [
     from: { type: "adapter-errors" },
     allow: {
       to: {
-        type: "adapter-errors",
+        type: ["adapter-errors", "adapter-boundary"],
         captured: sameAdapter,
       },
     },
@@ -165,7 +168,7 @@ export const formaDependencyRules = [
     from: { type: "adapter-mappers" },
     allow: {
       to: {
-        type: adapter(["mappers", "errors"]),
+        type: [...adapter(["mappers", "errors"]), "adapter-boundary"],
         captured: sameAdapter,
       },
     },
@@ -174,7 +177,7 @@ export const formaDependencyRules = [
     from: { type: "adapter-intents" },
     allow: {
       to: {
-        type: adapter(nonProviderAdapterLayers),
+        type: [...adapter(nonProviderAdapterLayers), "adapter-boundary"],
         captured: sameAdapter,
       },
     },
@@ -183,7 +186,7 @@ export const formaDependencyRules = [
     from: { type: "adapter-providers" },
     allow: {
       to: {
-        type: adapter(),
+        type: [...adapter(), "adapter-boundary"],
         captured: sameAdapter,
       },
     },

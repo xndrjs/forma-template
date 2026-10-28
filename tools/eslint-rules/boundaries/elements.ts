@@ -61,6 +61,31 @@ const providerElements = [
   },
 ] as const satisfies readonly ElementDescriptor[];
 
+/**
+ * Package-root Forma handle (`boundary.ts`) — same-package import only,
+ * not a public entrypoint. Full-path descriptors before folder elements.
+ */
+const boundaryElements = [
+  {
+    type: "core-boundary",
+    mode: "full",
+    pattern: "packages/core-*/boundary.ts",
+    capture: ["feature"],
+  },
+  {
+    type: "infrastructure-boundary",
+    mode: "full",
+    pattern: "packages/infrastructure-*/boundary.ts",
+    capture: ["infrastructure"],
+  },
+  {
+    type: "adapter-boundary",
+    mode: "full",
+    pattern: "packages/adapter-*/boundary.ts",
+    capture: ["adapter"],
+  },
+] as const satisfies readonly ElementDescriptor[];
+
 /** Forma `boundaries/elements` — more specific types before broader folders. */
 export const formaElements = [
   {
@@ -75,6 +100,7 @@ export const formaElements = [
     pattern: "apps/*",
     capture: ["app"],
   },
+  ...boundaryElements,
   ...providerElements,
   {
     type: "core-errors",

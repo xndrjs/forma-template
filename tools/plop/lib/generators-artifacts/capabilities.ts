@@ -8,7 +8,7 @@ import { relPosix, resolveDest, toPosix } from "../paths";
 import { kebabNamePrompt, nestedDestPrompt, newSubdirPrompt } from "../prompts";
 import { boundaryPackagePrompt } from "./prompts";
 
-/** Import path from operations dest file → models/<kitRel> (no extension). */
+/** Import path from operations dest → models/<kitRel> (extensionless; never `.js`). */
 function kitImportFromOpsDest(
   packagePath: string,
   destAbs: string,

@@ -60,9 +60,29 @@ describe("Forma ESLint matrix", () => {
     }
     expect(elements).not.toContain("infrastructure-models");
     expect(elements).not.toContain("adapter-models");
+    // Package-root Forma handles (same-package only)
+    expect(elements).toContain("core-boundary");
+    expect(elements).toContain("infrastructure-boundary");
+    expect(elements).toContain("adapter-boundary");
     // Monolith package elements must not remain
     expect(elements).not.toMatch(/"type":"infrastructure"/);
     expect(elements).not.toMatch(/"type":"adapter"/);
+  });
+
+  it("keeps *-boundary out of app and app-composition allow lists", async () => {
+    const eslint = new ESLint({ cwd: repoRoot });
+    const config = await eslint.calculateConfigForFile(
+      path.join(repoRoot, "apps/web/composition/root.ts"),
+    );
+    const rules = dependencyRulesFor(config);
+    const composition = rules.find((rule) =>
+      JSON.stringify(rule.from ?? null).includes("app-composition"),
+    );
+    const app = rules.find(
+      (rule) => JSON.stringify(rule.from ?? null) === '{"type":"app"}',
+    );
+    expect(allowTypes(composition)).not.toContain("boundary");
+    expect(allowTypes(app)).not.toContain("boundary");
   });
 
   it("bans core-operations from app-composition and app", async () => {
