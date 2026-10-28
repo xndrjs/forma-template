@@ -89,21 +89,21 @@ export default defineConfig(
   {
     files: scaffoldPackageSources,
     plugins: {
-      "clean-template": plugin,
+      "forma-template": plugin,
     },
     rules: {
-      "clean-template/no-todo-doc-marker": "warn",
+      "forma-template/no-todo-doc-marker": "warn",
     },
   },
   {
     files: scaffoldPackageMarkdown,
     plugins: {
       markdown,
-      "clean-template": plugin,
+      "forma-template": plugin,
     },
     language: "markdown/gfm",
     rules: {
-      "clean-template/no-todo-doc-marker": "warn",
+      "forma-template/no-todo-doc-marker": "warn",
     },
   },
 );
